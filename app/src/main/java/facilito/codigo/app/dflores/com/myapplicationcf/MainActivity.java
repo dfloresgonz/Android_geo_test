@@ -29,6 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import Beans.Usuario;
+import Beans.Utiles;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickbutton(View v) {
-        //TextView tv = (TextView)findViewById(R.id.rpta);
-        //String servicio = "http://192.168.1.10/mercadolibre/controlador/listarCervezas";
         String txtUsuario = ((EditText)findViewById(R.id.txtuser)).getText().toString();
         String txtPwd     = ((EditText)findViewById(R.id.txtpass)).getText().toString();
         JSONObject jsonObject = new JSONObject();
@@ -96,33 +95,13 @@ public class MainActivity extends AppCompatActivity {
             //...
         }
         String servicio = "http://"+server+"/buhoo/login/loginMovil?user="+txtUsuario+"&clave="+txtPwd;
-        new ReadWeatherJSONFeedTask().execute(servicio);
+        new LoginServicio().execute(servicio);
     }
 
-    private String readJSONFeed(String stringUrl) {
-        StringBuilder response  = new StringBuilder();
-        try {
-            URL url = new URL(stringUrl);
-            HttpURLConnection httpconn = (HttpURLConnection)url.openConnection();
-            if (httpconn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                BufferedReader input = new BufferedReader(new InputStreamReader(httpconn.getInputStream()),8192);
-                String strLine = null;
-                while ((strLine = input.readLine()) != null) {
-                    response.append(strLine);
-                }
-                input.close();
-            }
-        } catch(Exception e) {
-            StringWriter errors = new StringWriter();
-            e.printStackTrace(new PrintWriter(errors));
-            Log.d("CREATION", "errorrrr readJSONFeed: "+errors.toString());
-        }
-        return response.toString();
-    }
-
-    private class ReadWeatherJSONFeedTask extends AsyncTask<String, Void, String> {
+    private class LoginServicio extends AsyncTask<String, Void, String> {
         protected String doInBackground(String... urls) {
-            return readJSONFeed(urls[0]);
+            Utiles utiles = new Utiles();
+            return utiles.readJSONFeed(urls[0]);
         }
 
         protected void onPostExecute(String result) {
@@ -136,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                     String error = mainResponseObject.getString("error");
                     Log.d("CREATION", "MSJ: " + msj + "   error: " + error);
                     if("0".equals(error)) {
-                        //Intent nextPage = new Intent(MainActivity.this, Bienvenido.class);
                         Intent nextPage = new Intent(MainActivity.this, ByPass.class);
                         Integer idUsuario = mainResponseObject.getInt("id_usuario");
                         String nombreUsuario = mainResponseObject.getString("nombrecompleto");

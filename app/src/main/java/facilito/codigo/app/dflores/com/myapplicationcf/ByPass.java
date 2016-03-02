@@ -35,6 +35,7 @@ public class ByPass extends AppCompatActivity {
 
     ArrayList<String> comusList;
     ArrayList<BeanCombo> comunidades;
+    String server;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +63,7 @@ public class ByPass extends AppCompatActivity {
         SharedPreferences pref = getSharedPreferences("BUHOO_APP", MODE_PRIVATE);
         Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
 
-        String server = getResources().getString(R.string.ip_server);
-        //String server     = "10.1.1.107";//192.168.1.10   //lubalserver.zapto.org
+        server = getResources().getString(R.string.ip_server);
         String servicio = "http://"+server+"/buhoo/login/getRolesPersona_Service?id_persona="+usuario.getIdUsuario();
         new llamarServicio().execute(servicio);
     }
