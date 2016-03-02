@@ -651,7 +651,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     public Publicidad getPublicidad(Drawable imagen) {
         for(Publicidad itm : arryDraw) {
             if(imagen.equals(itm.getImagen())) {
-                Log.d("BUHOO"," encontro!!!!!!!!! imagen!!!!!!! : "+itm.getRutaURL());
                 return itm;
             }
         }
