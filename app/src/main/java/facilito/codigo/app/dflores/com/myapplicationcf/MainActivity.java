@@ -32,12 +32,16 @@ import Beans.Usuario;
 
 public class MainActivity extends AppCompatActivity {
 
+    String server;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        server = getResources().getString(R.string.ip_server);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -50,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences pref = getSharedPreferences("BUHOO_APP", MODE_PRIVATE);
         int idUsuario = pref.getInt("ID_USUARIO", 0);
-        Log.d("VER", "USUARIO: "+idUsuario);
+        Log.d("VER", "USUARIO: " + idUsuario);
         if(idUsuario != 0) {
             Intent nextPage = new Intent(MainActivity.this, ByPass.class);
             startActivity(nextPage);
@@ -84,7 +88,13 @@ public class MainActivity extends AppCompatActivity {
         //String servicio = "http://192.168.1.10/mercadolibre/controlador/listarCervezas";
         String txtUsuario = ((EditText)findViewById(R.id.txtuser)).getText().toString();
         String txtPwd     = ((EditText)findViewById(R.id.txtpass)).getText().toString();
-        String server = getResources().getString(R.string.ip_server);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.accumulate("name", "Diego");
+            jsonObject.accumulate("country", "Peru");
+        } catch(Exception e) {
+
+        }
         String servicio = "http://"+server+"/buhoo/login/loginMovil?user="+txtUsuario+"&clave="+txtPwd;
         new ReadWeatherJSONFeedTask().execute(servicio);
     }
