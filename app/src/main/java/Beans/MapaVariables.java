@@ -17,6 +17,7 @@ import java.util.List;
 public class MapaVariables extends Application {
 
     private static MapaVariables singleton;
+    public static String ipServer;
     public static boolean enBusqueda = false;
     public static JSONArray localesJSArray;
     public static Marker markerMiPosicion;

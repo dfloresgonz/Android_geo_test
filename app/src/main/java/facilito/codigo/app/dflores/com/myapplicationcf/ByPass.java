@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.PrintWriter;
@@ -28,14 +29,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import Beans.BeanCombo;
+import Beans.GetResponse;
 import Beans.Usuario;
 import Beans.Utiles;
+import Servicios.ComboService;
 
-public class ByPass extends AppCompatActivity {
+public class ByPass extends AppCompatActivity implements GetResponse {
 
-    ArrayList<String> comusList;
-    ArrayList<BeanCombo> comunidades;
-    String server;
+    //ArrayList<String> comusList;
+    //ArrayList<BeanCombo> comunidades;
+    //String server;
+    ComboService servicioCombo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +66,57 @@ public class ByPass extends AppCompatActivity {
 
         SharedPreferences pref = getSharedPreferences("BUHOO_APP", MODE_PRIVATE);
         Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id_persona", usuario.getIdUsuario());
+            jsonObject.put("tipoCombo", "rolesPersona");
+            Utiles.invocarComboServicio(jsonObject, this);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
-        server = getResources().getString(R.string.ip_server);
-        String servicio = "http://"+server+"/buhoo/login/getRolesPersona_Service?id_persona="+usuario.getIdUsuario();
-        new llamarServicio().execute(servicio);
+    /*
+      Implementa clase GetResponse
+     */
+    @Override
+    public Void getData(ArrayList<String> comusList, final ArrayList<BeanCombo> comunidadesBeanCombo,
+                        String tipoCombo) {
+        int combo = 0;
+        if("rolesPersona".equals(tipoCombo)) {
+            combo = R.id.cmbComus;
+        }
+        Spinner mySpinner = (Spinner) findViewById(combo);
+        mySpinner.setAdapter(new ArrayAdapter<String>(ByPass.this,
+                             android.R.layout.simple_spinner_dropdown_item,
+                             comusList));
+        mySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0,
+                                       View arg1, int position, long arg3) {
+                TextView txtResu = (TextView) findViewById(R.id.resu);
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("BUHOO_APP", 0); // 0 – for private mode
+                SharedPreferences.Editor editor = pref.edit();
+                txtResu.setText("Id : " + comunidadesBeanCombo.get(position).getIdCombo() + "   -  desc: " + comunidadesBeanCombo.get(position).getDescCombo());
+                editor.putInt("ID_COMUNIDAD", comunidadesBeanCombo.get(position).getIdCombo()); // Storing integer
+                editor.commit();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+                SharedPreferences pref = getApplicationContext().getSharedPreferences("BUHOO_APP", 0); // 0 – for private mode
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putInt("ID_COMUNIDAD", 0);
+                editor.commit();
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        //Include the code here
+        return;
     }
 
     public void cerrarSession(View v) {
@@ -75,79 +126,5 @@ public class ByPass extends AppCompatActivity {
         editor.commit();
         Intent goToLogin = new Intent(ByPass.this, MainActivity.class);
         startActivity(goToLogin);
-    }
-
-    private class llamarServicio extends AsyncTask<String, Void, String> {
-        Utiles utiles = new Utiles();
-        protected String doInBackground(String... urls) {
-            return utiles.readJSONFeed(urls[0]);
-        }
-
-        protected void onPostExecute(String result) {
-            try {
-                Log.d("BUHOO", "result:::::: " + result);
-                JSONObject mainResponseObject = new JSONObject(result);
-                try {
-                    String error = mainResponseObject.getString("error");
-                    Log.d("CREATION", " ---- error: " + error);
-                    if("0".equals(error)) {
-                        JSONArray comus = mainResponseObject.getJSONArray("comunidades"); //new JSONArray(mainResponseObject.getString("comunidades"));
-                        Log.d("CREATION", " ---- error = 0   polyObj: "+comus.length());
-                        comunidades = new ArrayList<BeanCombo>();
-                        comusList = new ArrayList<String>();
-                        for (int i = 0; i < comus.length(); ++i) {
-                            JSONObject comunidad = comus.getJSONObject(i);
-                            String desc_comu = comunidad.getString("desc_comunidad");
-                            String id_comu = comunidad.getString("_id_comunidad");
-                            BeanCombo combo = new BeanCombo(Integer.parseInt(id_comu),desc_comu);
-                            comunidades.add(combo);
-                            comusList.add(desc_comu);
-                        }
-                    } else {
-                        Log.d("CREATION", " ---- error inesperdo: " );
-                    }
-                    Spinner mySpinner = (Spinner) findViewById(R.id.cmbComus);
-                    mySpinner.setAdapter(new ArrayAdapter<String>(ByPass.this,
-                            android.R.layout.simple_spinner_dropdown_item,
-                            comusList));
-                    mySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> arg0,
-                                                   View arg1, int position, long arg3) {
-                            // Set the text followed by the position
-                            TextView txtResu = (TextView) findViewById(R.id.resu);
-                            SharedPreferences pref = getApplicationContext().getSharedPreferences("BUHOO_APP", 0); // 0 – for private mode
-                            SharedPreferences.Editor editor = pref.edit();
-                            txtResu.setText("Id : "+comunidades.get(position).getIdCombo()+"   -  desc: "+comunidades.get(position).getDescCombo());
-                            editor.putInt("ID_COMUNIDAD", comunidades.get(position).getIdCombo()); // Storing integer
-                            editor.commit();
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> arg0) {
-                            SharedPreferences pref = getApplicationContext().getSharedPreferences("BUHOO_APP", 0); // 0 – for private mode
-                            SharedPreferences.Editor editor = pref.edit();
-                            editor.putInt("ID_COMUNIDAD", 0);
-                            editor.commit();
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    StringWriter errors = new StringWriter();
-                    e.printStackTrace(new PrintWriter(errors));
-                    Log.d("CREATION", "tratando el JSON: "+errors.toString());
-                }
-            } catch (Exception e) {
-                StringWriter errors = new StringWriter();
-                e.printStackTrace(new PrintWriter(errors));
-                Log.d("CREATION", "errorrrr onPostExecute: "+errors.toString());
-            }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        //Include the code here
-        return;
     }
 }

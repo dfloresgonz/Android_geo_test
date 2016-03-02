@@ -28,6 +28,7 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import Beans.MapaVariables;
 import Beans.Usuario;
 import Beans.Utiles;
 
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         server = getResources().getString(R.string.ip_server);
+        MapaVariables.ipServer = server;
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

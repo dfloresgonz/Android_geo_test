@@ -1,8 +1,12 @@
 package Beans;
 
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -12,6 +16,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import Servicios.ComboService;
 
 /**
  * Created by dflores on 11/02/2016.
@@ -83,5 +89,13 @@ public class Utiles {
             poly.add(p);
         }
         return poly;
+    }
+
+    public static void invocarComboServicio(JSONObject jsonObject, GetResponse getResponse) {
+        String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/getCombo?json="+jsonObject;
+        Log.d("BUHOO", "servicio: "+servicio);
+        ComboService servicioCombo = new ComboService();
+        servicioCombo.getResponse = getResponse;
+        servicioCombo.execute(servicio);
     }
 }
