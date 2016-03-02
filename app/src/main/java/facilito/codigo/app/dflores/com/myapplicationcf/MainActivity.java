@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             jsonObject.accumulate("name", "Diego");
             jsonObject.accumulate("country", "Peru");
         } catch(Exception e) {
-
+            //...
         }
         String servicio = "http://"+server+"/buhoo/login/loginMovil?user="+txtUsuario+"&clave="+txtPwd;
         new ReadWeatherJSONFeedTask().execute(servicio);
