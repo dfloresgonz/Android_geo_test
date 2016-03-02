@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
         String txtPwd     = ((EditText)findViewById(R.id.txtpass)).getText().toString();
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.accumulate("name", "Diego");
-            jsonObject.accumulate("country", "Peru");
+            jsonObject.accumulate("user", "Diego");
+            jsonObject.accumulate("clave", "Peru");
         } catch(Exception e) {
             //...
         }
