@@ -19,13 +19,12 @@ import Beans.Utiles;
  */
 public class ComboService extends AsyncTask<String, Void, String> {
 
-    Utiles utiles = new Utiles();
     ArrayList<String> comboList;
     ArrayList<BeanCombo> objBeanCombo;
     public GetResponse getResponse = null;
 
     protected String doInBackground(String... urls) {
-        return utiles.readJSONFeed(urls[0]);
+        return Utiles.readJSONFeed(urls[0]);
     }
 
     protected void onPostExecute(String result) {
@@ -35,7 +34,6 @@ public class ComboService extends AsyncTask<String, Void, String> {
             String error = mainResponseObject.getString("error");
             if ("0".equals(error)) {
                 JSONArray objArry = mainResponseObject.getJSONArray("objeto");
-                Log.d("CREATION", " ---- error = 0   polyObj: " + objArry.length());
                 objBeanCombo = new ArrayList<BeanCombo>();
                 comboList = new ArrayList<String>();
                 for (int i = 0; i < objArry.length(); ++i) {
@@ -46,14 +44,12 @@ public class ComboService extends AsyncTask<String, Void, String> {
                     objBeanCombo.add(combo);
                     comboList.add(desc);
                 }
-                getResponse.getData(comboList, objBeanCombo, mainResponseObject.getString("tipoCombo"));
+                getResponse.getDataCombo(comboList, objBeanCombo, mainResponseObject.getString("tipoCombo"));
             } else {
                 Log.d("CREATION", " ---- error inesperdo: ");
             }
         } catch (Exception e) {
-            StringWriter errors = new StringWriter();
-            e.printStackTrace(new PrintWriter(errors));
-            Log.d("CREATION", "errorrrr onPostExecute: " + errors.toString());
+            Utiles.printearErrores(e, "ComboService - onPostExecute");
         }
     }
 }

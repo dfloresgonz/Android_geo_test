@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         } catch(Exception e) {
             //...
         }
-        String servicio = "http://"+server+"/buhoo/login/loginMovil?user="+txtUsuario+"&clave="+txtPwd;
+        String servicio = "http://"+server+"/buhoo/servicio/loginMovil?user="+txtUsuario+"&clave="+txtPwd;
         new LoginServicio().execute(servicio);
     }
 
@@ -120,10 +120,15 @@ public class MainActivity extends AppCompatActivity {
                         Intent nextPage = new Intent(MainActivity.this, ByPass.class);
                         Integer idUsuario = mainResponseObject.getInt("id_usuario");
                         String nombreUsuario = mainResponseObject.getString("nombrecompleto");
-                        Usuario usuario = new Usuario(idUsuario, nombreUsuario);
-                        nextPage.putExtra("BeanUsuario", usuario);
-                        editor.putString("NOMBRE_USUARIO", nombreUsuario); // Storing string
-                        editor.putInt("ID_USUARIO", idUsuario); // Storing integer
+                        String correo = mainResponseObject.getString("correo");
+                        String foto = mainResponseObject.getString("foto_persona");
+                        Log.d("BUHOO", "FOTOOO: "+foto);
+                        /*Usuario usuario = new Usuario(idUsuario, nombreUsuario, correo, foto);
+                        nextPage.putExtra("BeanUsuario", usuario);*/
+                        editor.putString("NOMBRE_USUARIO", nombreUsuario);
+                        editor.putInt("ID_USUARIO", idUsuario);
+                        editor.putString("CORREO", correo);
+                        editor.putString("FOTO", foto);
                         editor.commit();
                         startActivity(nextPage);
                     } else {

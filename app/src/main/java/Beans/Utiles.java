@@ -1,13 +1,9 @@
 package Beans;
 
-import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
-
 import com.google.android.gms.maps.model.LatLng;
-
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -16,15 +12,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 import Servicios.ComboService;
+import Servicios.ImagenService;
+import Servicios.PublicidadService;
 
 /**
  * Created by dflores on 11/02/2016.
  */
 public class Utiles {
 
-    public String readJSONFeed(String stringUrl) {
+    public static String readJSONFeed(String stringUrl) {
         StringBuilder response  = new StringBuilder();
         try {
             URL url = new URL(stringUrl);
@@ -93,9 +90,36 @@ public class Utiles {
 
     public static void invocarComboServicio(JSONObject jsonObject, GetResponse getResponse) {
         String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/getCombo?json="+jsonObject;
-        Log.d("BUHOO", "servicio: "+servicio);
         ComboService servicioCombo = new ComboService();
         servicioCombo.getResponse = getResponse;
         servicioCombo.execute(servicio);
+    }
+
+    public static void invocarPublicidadServicio(GetResponse getResponse) {
+        String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/getPublicidad";
+        PublicidadService servicioPublicidad = new PublicidadService();
+        servicioPublicidad.getResponse = getResponse;
+        servicioPublicidad.execute(servicio);
+    }
+
+    public static void invocarImagenServicio(GetResponse getResponse, String imagen) {
+        ImagenService servicioImagen = new ImagenService();
+        servicioImagen.getResponse = getResponse;
+        servicioImagen.execute(imagen);
+    }
+
+    public static Publicidad getPublicidad(Drawable imagen) {
+        for(Publicidad itm : MapaVariables.arryDraw) {
+            if(imagen.equals(itm.getImagen())) {
+                return itm;
+            }
+        }
+        return null;
+    }
+
+    public static void printearErrores(Exception e, String detalle) {
+        StringWriter errors = new StringWriter();
+        e.printStackTrace(new PrintWriter(errors));
+        Log.d("BUHOO", "ERROR "+ detalle + errors.toString());
     }
 }

@@ -24,17 +24,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -60,10 +53,8 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -73,6 +64,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import Beans.BeanCombo;
+import Beans.GetResponse;
 import Beans.MapaVariables;
 import Beans.Publicidad;
 import Beans.Usuario;
@@ -80,12 +73,13 @@ import Beans.Utiles;
 import Servicios.DistanciaComunidad;
 import Servicios.Locales;
 import Servicios.RutaService;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                                                       GoogleApiClient.ConnectionCallbacks,
                                                       GoogleApiClient.OnConnectionFailedListener,
-                                                      LocationListener/*,
-                                                      AdapterView.OnItemClickListener*/{
+                                                      LocationListener,
+                                                      GetResponse {
 
     private static GoogleMap mMap;
     private static double lat = 0.0;
@@ -99,11 +93,13 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     static View vistaMapa = null;
     private static final String[] values = {"Drawer 1", "Drawer 2", "Drawer 3"};
 
-    int ICONS[] = {R.drawable.user_icon,R.drawable.camara,R.drawable.money,R.drawable.musica,R.drawable.twitter};
+    int ICONS[] = {R.drawable.user_icon,
+                   R.drawable.camara,
+                   R.drawable.money,
+                   R.drawable.musica,
+                   R.drawable.twitter};
     //Similarly we Create a String Resource for the name and email in the header view
     //And we also create a int resource for profile picture in the header view
-    String NAME = "Diegol";
-    String EMAIL = "dfloresg@softhy.pe";
     int PROFILE = R.drawable.usuario;
 
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
@@ -115,14 +111,14 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     SupportMapFragment mapFragment;
 
     AnimationDrawable animation = new AnimationDrawable();
-    List<Publicidad> arryDraw = new ArrayList<Publicidad>();
     ImageView publicidadImagen;
-    static String server;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
+
+        SharedPreferences pref = getSharedPreferences("BUHOO_APP", MODE_PRIVATE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -132,7 +128,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
 
         mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
         mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
-        mAdapter = new MyAdapter(values, ICONS, NAME,EMAIL,PROFILE, this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        mAdapter = new MyAdapter(values, ICONS, pref.getString("NOMBRE_USUARIO", null), pref.getString("CORREO", null),PROFILE, this);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
 
         mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager
@@ -159,9 +155,22 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
         vistaMapa = (View) this.findViewById(R.id.map);
         publicidadImagen = (ImageView) findViewById(R.id.imageView);
 
-        new SendfeedbackJob().execute();
-        //applyListenerPublicidad(handleClickPublicidad);
+        Utiles.invocarPublicidadServicio(this);
+        Utiles.invocarImagenServicio(this, pref.getString("FOTO", null));
+        createLocationRequest();
 
+        //Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
+        int idComu = pref.getInt("ID_COMUNIDAD", 0);
+        String servicio = "http://"+MapaVariables.ipServer+"/buhoo/intranet/mi_comunidad/getComunidadByPersona_Service?id_persona="+pref.getInt("ID_USUARIO", 0)+"&id_comunidad="+idComu;
+        Log.d("BUHOO", "servicioservicioservicio:::::: " + servicio);
+        new llamarServicio().execute(servicio);
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+    protected void createLocationRequest() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -169,7 +178,12 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                     .addApi(LocationServices.API)
                     .build();
         }
-        createLocationRequest();
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        ////////////////////////////////////////////////////////////////////////////////////////////
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
         result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
@@ -194,25 +208,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                 }
             }
         });
-
-        SharedPreferences pref = getSharedPreferences("BUHOO_APP", MODE_PRIVATE);
-        Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
-        int idComu = pref.getInt("ID_COMUNIDAD", 0);
-        server = getResources().getString(R.string.ip_server);
-        String servicio = "http://"+server+"/buhoo/intranet/mi_comunidad/getComunidadByPersona_Service?id_persona="+usuario.getIdUsuario()+"&id_comunidad="+idComu;
-        Log.d("BUHOO", "servicioservicioservicio:::::: " + servicio);
-        new llamarServicio().execute(servicio);
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
-
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
@@ -273,7 +268,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
         } catch(SecurityException e) {
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
-            Log.d("BUHOO", " ERROR onLocationChanged "+errors.toString());
+            Log.d("BUHOO", " ERROR startLocationUpdates "+errors.toString());
         }
     }
 
@@ -284,7 +279,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("BUHOO", "onLocationChanged:::::: "+location.getLatitude()+"   longitud: "+location.getLongitude());
+        //Log.d("BUHOO", "onLocationChanged:::::: "+location.getLatitude()+"   longitud: "+location.getLongitude());
         lat = location.getLatitude();
         lon = location.getLongitude();
         onMapReady(mMap);
@@ -318,6 +313,35 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public Void getDataCombo(ArrayList<String> comusList, ArrayList<BeanCombo> comunidadesBeanCombo, String tipoCombo) {
+        return null;//No implementado
+    }
+
+    @Override
+    public Void getDataPublicidad(List<Publicidad> arryDraw) {
+        for(Publicidad itm : arryDraw) {
+            animation.addFrame(itm.getImagen(), 6000);
+        }
+        MapaVariables.arryDraw = arryDraw;//usado en el handleClickPublicidad
+        animation.setOneShot(false);
+        publicidadImagen.setBackgroundDrawable(animation);
+        animation.start();
+        publicidadImagen.setOnClickListener(handleClickPublicidad);
+        return null;
+    }
+
+    @Override
+    public Void getDataUsuarioFoto(Drawable imagen) {
+        CircleImageView civ = (CircleImageView) findViewById(R.id.circleView);
+        try {
+            civ.setImageDrawable(imagen);
+        } catch (Exception e) {
+            Utiles.printearErrores(e, "CIRCLE IMAGE ERROR: ");
+        }
+        return null;
+    }
+
     public static class GPSCheck extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -337,7 +361,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String servicioLocales = "http://"+server+"/buhoo/intranet/mi_comunidad/getPuntosBusqueda_Service";
+            String servicioLocales = "http://"+MapaVariables.ipServer+"/buhoo/intranet/mi_comunidad/getPuntosBusqueda_Service";
             Log.d("BUHOO", "Recibido!!! " + MapaVariables.enBusqueda);
             MapaVariables.localesJSArray = null;
             new Locales(context).execute(servicioLocales);
@@ -488,7 +512,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
             public void onCameraChange(CameraPosition cameraPosition) {
                 latMovi = cameraPosition.target.latitude;
                 lonMovi = cameraPosition.target.longitude;
-                Log.d("BUHOO", "MOVISTE MAPA A:  lat: " + cameraPosition.target.latitude + "   long: " + cameraPosition.target.longitude);
+                //Log.d("BUHOO", "MOVISTE MAPA A:  lat: " + cameraPosition.target.latitude + "   long: " + cameraPosition.target.longitude);
             }
         });
         // Add a marker in Sydney and move the camera
@@ -511,15 +535,14 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
             MapaVariables.markerMiPosicion = markerMiPosicion;
             //mMap.addMarker(new MarkerOptions().position(myPos).title("MI POSICION ACTUAL").snippet("1"));
             float zoomLevel = 17; //This goes up to 21
-            //Polygon polygon = mMap.addPolygon(comunidad);
-            Log.d("BUHOO"," PINTANDO MAPA cantidad latlongs: "+comunidad.getPoints().size());
+            //Log.d("BUHOO"," PINTANDO MAPA cantidad latlongs: "+comunidad.getPoints().size());
             if(comunidad.getPoints().size() > 0) {
                 Polygon polygon = mMap.addPolygon(comunidad/*.fillColor(Color.BLUE)*/);
                 polygon.setClickable(true);
                 mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener()  {
                     @Override
                     public void onPolygonClick(Polygon polygon) {
-                        String servicioDistanciaPoly = "http://"+server+"/buhoo/intranet/mi_comunidad/getDistanciaComunidad_Service?latitud="+lat+"&longitud="+lon+"&idComunidad="+MapaVariables.idComunidad;
+                        String servicioDistanciaPoly = "http://"+MapaVariables.ipServer+"/buhoo/intranet/mi_comunidad/getDistanciaComunidad_Service?latitud="+lat+"&longitud="+lon+"&idComunidad="+MapaVariables.idComunidad;
                         new DistanciaComunidad(Mapa.this).execute(servicioDistanciaPoly);
                     }
                 });
@@ -609,53 +632,19 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
         return;
     }
 
-    class SendfeedbackJob extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String[] params) {
-            try{
-                String url[] = new String[]{"https://www.ero-advertising.com/images/7e90313a92.jpg",
-                                            "https://www.ero-advertising.com/images/banner_small_01.jpg"};
-                InputStream is = (InputStream) new URL(url[0]).getContent();
-                arryDraw.add(new Publicidad(url[0], Drawable.createFromStream(is, "src name"))  );
-                is = (InputStream) new URL(url[1]).getContent();
-                arryDraw.add(new Publicidad(url[1], Drawable.createFromStream(is, "src name"))  );
-            }catch(Exception e) {
+    private View.OnClickListener handleClickPublicidad = new View.OnClickListener(){
+        public void onClick(View arg0) {
+            try {
+                Publicidad publi = Utiles.getPublicidad(animation.getCurrent());
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(publi.getRutaURL()));
+                startActivity(browserIntent);
+            } catch(Exception e) {
                 StringWriter errors = new StringWriter();
                 e.printStackTrace(new PrintWriter(errors));
                 Log.d("BUHOO", " ERROR IMAGENES " + errors.toString());
             }
-            return "some message size: "+arryDraw.size();
-        }
-
-        @Override
-        protected void onPostExecute(String message) {
-            Log.d("BUHOO", " respondio!! " + message);
-            for(Publicidad itm : arryDraw) {
-                animation.addFrame(itm.getImagen(), 6000);
-            }
-            animation.setOneShot(false);
-            publicidadImagen.setBackgroundDrawable(animation);
-            animation.start();
-            publicidadImagen.setOnClickListener(handleClickPublicidad);
-        }
-    }
-
-    private View.OnClickListener handleClickPublicidad = new View.OnClickListener(){
-        public void onClick(View arg0) {
-            Publicidad publi = getPublicidad(animation.getCurrent());
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(publi.getRutaURL()));
-            startActivity(browserIntent);
         }
     };
-
-    public Publicidad getPublicidad(Drawable imagen) {
-        for(Publicidad itm : arryDraw) {
-            if(imagen.equals(itm.getImagen())) {
-                return itm;
-            }
-        }
-        return null;
-    }
 
     public void cerrarSession(View v) {
         SharedPreferences pref = getSharedPreferences("BUHOO_APP", MODE_PRIVATE);

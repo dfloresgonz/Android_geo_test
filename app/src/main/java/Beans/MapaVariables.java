@@ -28,6 +28,8 @@ public class MapaVariables extends Application {
     //RutaService
     public static List<LatLng> lineas;
     public static Polyline polylineToAdd;
+    //Publicidad Service
+    public static List<Publicidad> arryDraw;
 
     public static MapaVariables getInstance() {
         return singleton;

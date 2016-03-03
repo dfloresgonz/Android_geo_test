@@ -2,6 +2,7 @@ package facilito.codigo.app.dflores.com.myapplicationcf;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -30,16 +31,13 @@ import java.util.List;
 
 import Beans.BeanCombo;
 import Beans.GetResponse;
+import Beans.MapaVariables;
+import Beans.Publicidad;
 import Beans.Usuario;
 import Beans.Utiles;
 import Servicios.ComboService;
 
 public class ByPass extends AppCompatActivity implements GetResponse {
-
-    //ArrayList<String> comusList;
-    //ArrayList<BeanCombo> comunidades;
-    //String server;
-    ComboService servicioCombo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +46,10 @@ public class ByPass extends AppCompatActivity implements GetResponse {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if( MapaVariables.ipServer == null) {
+            MapaVariables.ipServer = getResources().getString(R.string.ip_server);
+        }
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +57,7 @@ public class ByPass extends AppCompatActivity implements GetResponse {
                 SharedPreferences pref = getApplicationContext().getSharedPreferences("BUHOO_APP", 0); // 0 – for private mode
                 SharedPreferences.Editor editor = pref.edit();
                 int idComu = pref.getInt("ID_COMUNIDAD", 0);
-                if(idComu != 0) {
+                if (idComu != 0) {
                     Intent goToMap = new Intent(ByPass.this, Mapa.class);
                     startActivity(goToMap);
                 } else {
@@ -65,10 +67,10 @@ public class ByPass extends AppCompatActivity implements GetResponse {
         });
 
         SharedPreferences pref = getSharedPreferences("BUHOO_APP", MODE_PRIVATE);
-        Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
+        //Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
         try {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("id_persona", usuario.getIdUsuario());
+            jsonObject.put("id_persona", pref.getInt("ID_USUARIO", 0));
             jsonObject.put("tipoCombo", "rolesPersona");
             Utiles.invocarComboServicio(jsonObject, this);
         } catch (JSONException e) {
@@ -80,8 +82,8 @@ public class ByPass extends AppCompatActivity implements GetResponse {
       Implementa clase GetResponse
      */
     @Override
-    public Void getData(ArrayList<String> comusList, final ArrayList<BeanCombo> comunidadesBeanCombo,
-                        String tipoCombo) {
+    public Void getDataCombo(ArrayList<String> comusList, final ArrayList<BeanCombo> comunidadesBeanCombo,
+                             String tipoCombo) {
         int combo = 0;
         if("rolesPersona".equals(tipoCombo)) {
             combo = R.id.cmbComus;
@@ -110,6 +112,19 @@ public class ByPass extends AppCompatActivity implements GetResponse {
                 editor.commit();
             }
         });
+        return null;
+    }
+
+    /*
+      Implementa clase GetResponse
+     */
+    @Override
+    public Void getDataPublicidad(List<Publicidad> arryDraw) {
+        return null;
+    }
+
+    @Override
+    public Void getDataUsuarioFoto(Drawable imagen) {
         return null;
     }
 

@@ -34,9 +34,9 @@ public class Bienvenido extends AppCompatActivity {
 
         TextView tv = (TextView) findViewById(R.id.textView);
         /*Intent i = getIntent();
-        Usuario usuario = (Usuario) i.getSerializableExtra("BeanUsuario");*/
+        Usuario usuario = (Usuario) i.getSerializableExtra("BeanUsuario");
         Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
-        tv.setText("Hola, " + usuario.getNombreCompleto() + " bienvenido al sistema - " + usuario.getIdUsuario());
+        tv.setText("Hola, " + usuario.getNombreCompleto() + " bienvenido al sistema - " + usuario.getIdUsuario());*/
     }
 
     public void cerrarSession(View v) {
