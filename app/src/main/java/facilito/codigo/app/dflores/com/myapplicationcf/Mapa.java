@@ -160,11 +160,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
         createLocationRequest();
 
         //Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
-        int idComu = pref.getInt("ID_COMUNIDAD", 0);
-        String servicio = "http://"+MapaVariables.ipServer+"/buhoo/intranet/mi_comunidad/getComunidadByPersona_Service?id_persona="+pref.getInt("ID_USUARIO", 0)+"&id_comunidad="+idComu;
-        Log.d("BUHOO", "servicioservicioservicio:::::: " + servicio);
-        new llamarServicio().execute(servicio);
-
+        Utiles.invocarComunidadServicio(this, pref.getInt("ID_USUARIO", 0), pref.getInt("ID_COMUNIDAD", 0));
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -342,6 +338,14 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
         return null;
     }
 
+    @Override
+    public Void getDataComunidad(PolygonOptions comunidad, int idComunidad, String descComunidad) {
+        this.comunidad = comunidad;
+        MapaVariables.idComunidad   = idComunidad;
+        MapaVariables.descComunidad = descComunidad;
+        return null;
+    }
+
     public static class GPSCheck extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -374,7 +378,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
             Log.d("BUHOO", "Recibido ReceiverLocales!!! ");
             if (MapaVariables.localesJSArray != null) {
                     JSONArray locales = MapaVariables.localesJSArray;
-                    Log.d("BUHOO", "locales arrayyyyyyyyyy!!! "+locales.length());
+                    Log.d("BUHOO", "locales arrayyyyyyyyyy!!! " + locales.length());
                     for (int i = 0; i < locales.length(); ++i) {
                         try {
                             JSONObject local = locales.getJSONObject(i);
@@ -445,52 +449,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
 
             } else {
                 Log.d("BUHOO", "MapaVariables.lineas ES NULL !!! ");
-            }
-        }
-    }
-
-    private class llamarServicio extends AsyncTask<String, Void, String> {
-        Utiles utiles = new Utiles();
-        protected String doInBackground(String... urls) {
-            return utiles.readJSONFeed(urls[0]);
-        }
-
-        protected void onPostExecute(String result) {
-            try {
-                Log.d("BUHOO", "result:::::: "+result);
-                JSONObject mainResponseObject = new JSONObject(result);
-                try {
-                    String error = mainResponseObject.getString("error");
-                    if("0".equals(error)) {
-                        JSONObject polyObj = new JSONObject(mainResponseObject.getString("poligono"));
-                        String puntos = polyObj.getString("puntos");
-                        List<String> puntosList = Arrays.asList(puntos.split(","));
-                        for(Iterator it = puntosList.iterator(); it.hasNext(); ) {
-                            String str = (String) it.next();
-                            String[] latlon = str.split(" ");
-                            double lati  = Double.parseDouble(latlon[0].replaceAll("\"", ""));
-                            double longi = Double.parseDouble(latlon[1].replaceAll("\"", ""));
-
-                            comunidad.add(new LatLng(lati, longi));
-                            //Log.d("BUHOO", "lati:::::: "+lati+"  ... "+longi);
-                        }
-                        MapaVariables.idComunidad = polyObj.getInt("id_comunidad");
-                        MapaVariables.descComunidad = polyObj.getString("desc_comunidad");
-                        Log.d("BUHOO"," onPostExecute cantidad latlongs: "+comunidad.getPoints().size());
-                        onMapReady(mMap);
-                    } else {
-                        Log.d("CREATION", " ---- error inesperdo: " );
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    StringWriter errors = new StringWriter();
-                    e.printStackTrace(new PrintWriter(errors));
-                    Log.d("CREATION", "tratando el JSON: "+errors.toString());
-                }
-            } catch (Exception e) {
-                StringWriter errors = new StringWriter();
-                e.printStackTrace(new PrintWriter(errors));
-                Log.d("CREATION", "errorrrr onPostExecute: "+errors.toString());
             }
         }
     }

@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import Servicios.ComboService;
+import Servicios.ComunidadService;
 import Servicios.ImagenService;
 import Servicios.PublicidadService;
 
@@ -106,6 +107,13 @@ public class Utiles {
         ImagenService servicioImagen = new ImagenService();
         servicioImagen.getResponse = getResponse;
         servicioImagen.execute(imagen);
+    }
+
+    public static void invocarComunidadServicio(GetResponse getResponse, int idUsuario, int idComu) {
+        String servicio = "http://"+MapaVariables.ipServer+"/buhoo/intranet/mi_comunidad/getComunidadByPersona_Service?id_persona="+idUsuario+"&id_comunidad="+idComu;
+        ComunidadService servicioComunidad = new ComunidadService();
+        servicioComunidad.getResponse = getResponse;
+        servicioComunidad.execute(servicio);
     }
 
     public static Publicidad getPublicidad(Drawable imagen) {

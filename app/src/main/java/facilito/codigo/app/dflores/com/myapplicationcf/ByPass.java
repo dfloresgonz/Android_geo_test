@@ -17,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -125,6 +126,11 @@ public class ByPass extends AppCompatActivity implements GetResponse {
 
     @Override
     public Void getDataUsuarioFoto(Drawable imagen) {
+        return null;
+    }
+
+    @Override
+    public Void getDataComunidad(PolygonOptions comunidad, int idComunidad, String descComunidad) {
         return null;
     }
 
