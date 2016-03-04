@@ -24,8 +24,6 @@ import Beans.Utiles;
  * Created by dflores on 29/02/2016.
  */
 public class Locales extends AsyncTask<String, Void, String> {
-
-    Utiles utiles = new Utiles();
     static Context mContext;
 
     public Locales(Context context) {
@@ -34,7 +32,7 @@ public class Locales extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        return utiles.readJSONFeed(params[0]);
+        return Utiles.readJSONFeed(params[0]);
     }
 
     protected void onPostExecute(String result) {

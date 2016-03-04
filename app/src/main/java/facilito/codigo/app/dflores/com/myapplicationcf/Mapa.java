@@ -362,7 +362,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     }
 
     public static class ReceiverDrawer extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             String servicioLocales = "http://"+MapaVariables.ipServer+"/buhoo/intranet/mi_comunidad/getPuntosBusqueda_Service";
@@ -394,10 +393,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                             LatLng localPostition = new LatLng(lat, lon);
                             mMap.addMarker(new MarkerOptions().position(localPostition).title(nombreLocal).snippet(direccion).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                         } catch (Exception e) {
-                            e.printStackTrace();
-                            StringWriter errors = new StringWriter();
-                            e.printStackTrace(new PrintWriter(errors));
-                            Log.d("CREATION", "tratando el JSON localesss: " + errors.toString());
+                            Utiles.printearErrores(e, "tratando el JSON localesss: ");
                         }
                     }
             } else {
