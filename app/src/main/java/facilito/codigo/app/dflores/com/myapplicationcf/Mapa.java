@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
@@ -158,6 +159,8 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
         Utiles.invocarPublicidadServicio(this);
         Utiles.invocarImagenServicio(this, pref.getString("FOTO", null));
         createLocationRequest();
+
+        setBtnCerrarPublicidadOnClick();
 
         //Usuario usuario = new Usuario(pref.getInt("ID_USUARIO", 0), pref.getString("NOMBRE_USUARIO", null));
         Utiles.invocarComunidadServicio(this, pref.getInt("ID_USUARIO", 0), pref.getInt("ID_COMUNIDAD", 0));
@@ -584,6 +587,17 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     public void onBackPressed() {
         //Include the code here
         return;
+    }
+
+    private void setBtnCerrarPublicidadOnClick() {
+        final Button btnCerrar = (Button) findViewById(R.id.btnCerrarPublicidad);
+        btnCerrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                publicidadImagen.setVisibility(View.GONE);
+                btnCerrar.setVisibility(View.GONE);
+            }
+        });
     }
 
     private View.OnClickListener handleClickPublicidad = new View.OnClickListener(){
