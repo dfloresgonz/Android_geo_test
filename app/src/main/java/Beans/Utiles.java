@@ -43,17 +43,17 @@ public class Utiles {
         return response.toString();
     }
 
-    public double round(double value, int precision) {
+    public static double round(double value, int precision) {
         int scale = (int) Math.pow(10, precision);
         return (double) Math.round(value * scale) / scale;
     }
 
-    public String distanciaFormat(double value) {
+    public static String distanciaFormat(double value) {
         String distancia = null;
         if(value < 100) {
-            distancia = this.round(value, 1)+" metros";
+            distancia = round(value, 1)+" metros";
         } else {
-            distancia = this.round((value / 1000), 1)+" KM.";
+            distancia = round((value / 1000), 1)+" KM.";
         }
         return distancia;
     }

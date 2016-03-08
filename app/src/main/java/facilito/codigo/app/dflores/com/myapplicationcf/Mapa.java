@@ -215,9 +215,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
         try {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         } catch(SecurityException e) {
-            StringWriter errors = new StringWriter();
-            e.printStackTrace(new PrintWriter(errors));
-            Log.d("BUHOO", " ERROR onLocationChanged "+errors.toString());
+            Utiles.printearErrores(e, " ERROR onLocationChanged ");
         }
         //if (mRequestingLocationUpdates) {
         startLocationUpdates();
@@ -377,7 +375,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     public static class ReceiverLocales extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("BUHOO", "Recibido ReceiverLocales!!! ");
             if (MapaVariables.localesJSArray != null) {
                     JSONArray locales = MapaVariables.localesJSArray;
                     Log.d("BUHOO", "locales arrayyyyyyyyyy!!! " + locales.length());
@@ -388,8 +385,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                             String nombreLocal = local.getString("nombre_local");
                             String direccion = local.getString("direccion");
                             String coord = local.getString("coord");
-                            Log.d("BUHOO", "idLocal: " + idLocal + " | nombreLocal: " + nombreLocal +
-                                    " | direccion : " + direccion + " | coord: " + coord);
+                            Log.d("BUHOO", "idLocal: " + idLocal + " | nombreLocal: " + nombreLocal + " | direccion : " + direccion + " | coord: " + coord);
                             List<String> puntosList = Arrays.asList(coord.split(" "));
                             double lat = Double.parseDouble(puntosList.get(0).replaceAll("\"", ""));
                             double lon = Double.parseDouble(puntosList.get(1).replaceAll("\"", ""));
@@ -408,10 +404,8 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     public static class DistanciaComunidadReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("BUHOO", "Recibido DistanciaComunidadReceiver!!! ");
             if (MapaVariables.distanciaPoligono != 0.0) {
-                Utiles utiles = new Utiles();
-                String distancia = utiles.distanciaFormat(MapaVariables.distanciaPoligono);
+                String distancia = Utiles.distanciaFormat(MapaVariables.distanciaPoligono);
                 Toast.makeText(context, MapaVariables.descComunidad+" - Distancia: "+distancia, Toast.LENGTH_LONG).show();
                 pintarRuta(MapaVariables.latLonComunidad.latitude, MapaVariables.latLonComunidad.longitude, context);
             } else {
@@ -423,7 +417,6 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     public static class RutaReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(final Context context, Intent intent) {
-            Log.d("BUHOO", ",,,,,,,,,,,,,,,,,,Recibido RutaReceiver!!! ");
             if (MapaVariables.lineas != null) {
                 Polyline polylineToAdd = MapaVariables.polylineToAdd;
                 if(polylineToAdd == null) {
@@ -439,8 +432,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                     public void onPolylineClick(Polyline polyline) {
                         if(polyline.equals(MapaVariables.polylineToAdd)) {
                             float longitudRuta = getLongitudRuta(polyline.getPoints());
-                            Utiles utiles = new Utiles();
-                            String distancia = utiles.distanciaFormat(longitudRuta);
+                            String distancia = Utiles.distanciaFormat(longitudRuta);
                             Toast.makeText(context,"Distancia de la ruta: "+distancia, Toast.LENGTH_LONG).show();
                         }
                     }
@@ -469,10 +461,8 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
             public void onCameraChange(CameraPosition cameraPosition) {
                 latMovi = cameraPosition.target.latitude;
                 lonMovi = cameraPosition.target.longitude;
-                //Log.d("BUHOO", "MOVISTE MAPA A:  lat: " + cameraPosition.target.latitude + "   long: " + cameraPosition.target.longitude);
             }
         });
-        // Add a marker in Sydney and move the camera
         if(lat != 0.0 && lon != 0.0) {
             LatLng myPos = new LatLng(lat, lon);
             //mMap.clear();
@@ -483,20 +473,17 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
             mMap.getUiSettings().setMapToolbarEnabled(true);
             Marker markerMiPosicion = MapaVariables.markerMiPosicion;
             if(markerMiPosicion == null) {
-                //icon(BitmapDescriptorFactory.fromResource(R.drawable.mi_ubicacion)
                 markerMiPosicion = mMap.addMarker(new MarkerOptions().position(myPos).title("MI POSICION ACTUAL"));
             } else {
                 markerMiPosicion.remove();
                 markerMiPosicion = mMap.addMarker(new MarkerOptions().position(myPos).title("MI POSICION ACTUAL"));
             }
             MapaVariables.markerMiPosicion = markerMiPosicion;
-            //mMap.addMarker(new MarkerOptions().position(myPos).title("MI POSICION ACTUAL").snippet("1"));
-            float zoomLevel = 17; //This goes up to 21
-            //Log.d("BUHOO"," PINTANDO MAPA cantidad latlongs: "+comunidad.getPoints().size());
+            float zoomLevel = 17; //zoom maximo = 21
             if(comunidad.getPoints().size() > 0) {
                 Polygon polygon = mMap.addPolygon(comunidad/*.fillColor(Color.BLUE)*/);
                 polygon.setClickable(true);
-                mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener()  {
+                mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener() {
                     @Override
                     public void onPolygonClick(Polygon polygon) {
                         String servicioDistanciaPoly = "http://"+MapaVariables.ipServer+"/buhoo/intranet/mi_comunidad/getDistanciaComunidad_Service?latitud="+lat+"&longitud="+lon+"&idComunidad="+MapaVariables.idComunidad;
@@ -520,8 +507,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                         currentLoc.setLongitude(lon);
 
                         Float distance = currentLoc.distanceTo(markerLoc);
-                        Utiles u = new Utiles();
-                        String distancia = u.distanciaFormat(distance);
+                        String distancia = Utiles.distanciaFormat(distance);
                         pintarRuta(arg0.getPosition().latitude, arg0.getPosition().longitude, Mapa.this);
                         Toast.makeText(Mapa.this, arg0.getTitle()+" - "+arg0.getSnippet()+" Distancia: "+distancia, Toast.LENGTH_LONG).show();
                     }
@@ -552,11 +538,11 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
             currLocation.setLongitude(points.get(i).longitude);
 
             Location lastLocation = new Location("this");
-            lastLocation.setLatitude(points.get(i-1).latitude);
+            lastLocation.setLatitude(points.get(i - 1).latitude);
             lastLocation.setLongitude(points.get(i - 1).longitude);
 
             totalDistance += lastLocation.distanceTo(currLocation);
-            Log.d("BUHOO", "totalDistance: "+totalDistance);
+            //Log.d("BUHOO", "totalDistance: "+totalDistance);
         }
         return totalDistance;
     }
