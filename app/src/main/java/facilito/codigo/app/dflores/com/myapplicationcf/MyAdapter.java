@@ -83,10 +83,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             Intent intent = new Intent();
             intent.setAction("com.buhooapp.CLICK_DRAWER");
             mContext.sendBroadcast(intent);
-            //Snackbar.make(vistaMapa, "Seleccionaste: " + actividad, Snackbar.LENGTH_LONG).setAction("Action", null).show();
-            //Toast.makeText(getActivity(), "Seleccionaste: " + actividad, Toast.LENGTH_LONG).show();
-            //Toast toast = Toast.makeText(mContext, "Seleccionaste: " + actividad, Toast.LENGTH_LONG);
-            //toast.show();
             //mDrawer.closeDrawers();
         }
     }

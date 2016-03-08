@@ -106,7 +106,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
     RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
     RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
-    DrawerLayout Drawer;                                  // Declaring DrawerLayout
+    static DrawerLayout Drawer;                                  // Declaring DrawerLayout
 
     ActionBarDrawerToggle mDrawerToggle;
     SupportMapFragment mapFragment;
@@ -148,6 +148,11 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                 //super.onDrawerClosed(drawerView);
                 getSupportActionBar().setTitle("Mapa");
                 invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, 0);
             }
         }; // Drawer Toggle Object Made
         Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
@@ -365,6 +370,7 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
     public static class ReceiverDrawer extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Drawer.closeDrawers();
             String servicioLocales = "http://"+MapaVariables.ipServer+"/buhoo/intranet/mi_comunidad/getPuntosBusqueda_Service";
             Log.d("BUHOO", "Recibido!!! " + MapaVariables.enBusqueda);
             MapaVariables.localesJSArray = null;
