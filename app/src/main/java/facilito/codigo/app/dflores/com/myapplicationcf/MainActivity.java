@@ -117,12 +117,12 @@ public class MainActivity extends AppCompatActivity {
                     String error = mainResponseObject.getString("error");
                     Log.d("CREATION", "MSJ: " + msj + "   error: " + error);
                     if("0".equals(error)) {
-                        Intent nextPage = new Intent(MainActivity.this, ByPass.class);
+                        Intent nextPage = new Intent(MainActivity.this, Incidencia.class);
                         Integer idUsuario = mainResponseObject.getInt("id_usuario");
                         String nombreUsuario = mainResponseObject.getString("nombrecompleto");
                         String correo = mainResponseObject.getString("correo");
                         String foto = mainResponseObject.getString("foto_persona");
-                        Log.d("BUHOO", "FOTOOO: "+foto);
+                        Log.d("BUHOO", "FOTOOO:::::: "+foto);
                         /*Usuario usuario = new Usuario(idUsuario, nombreUsuario, correo, foto);
                         nextPage.putExtra("BeanUsuario", usuario);*/
                         editor.putString("NOMBRE_USUARIO", nombreUsuario);

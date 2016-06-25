@@ -72,6 +72,10 @@
             android:name=".ByPass"
             android:label="@string/title_activity_by_pass"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".Incidencia"
+            android:label="@string/title_activity_incidencias"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
