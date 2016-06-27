@@ -361,7 +361,9 @@ public class Mapa extends AppCompatActivity implements OnMapReadyCallback,
                 Log.d("BUHOO", " :D HABILITADO !!!!!!!!!!!!!!!!!!!");
             } else {
                 Log.d("BUHOO", " :( DESHABILITADO !!!!!!!!!!!!!!!!!!!");
-                Snackbar.make(vistaMapa, "¡Apagaste tu GPS!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                if(vistaMapa != null) {
+                    Snackbar.make(vistaMapa, "¡Apagaste tu GPS!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                }
                 //Toast.makeText(context, "Please switch on the GPS", Toast.LENGTH_LONG).show();
             }
         }

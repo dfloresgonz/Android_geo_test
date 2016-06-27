@@ -38,7 +38,7 @@ public class Utiles {
         } catch(Exception e) {
             StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
-            Log.d("CREATION", "errorrrr readJSONFeed: " + errors.toString());
+            Log.d("BUHOO", "errorrrr readJSONFeed: " + errors.toString());
         }
         return response.toString();
     }

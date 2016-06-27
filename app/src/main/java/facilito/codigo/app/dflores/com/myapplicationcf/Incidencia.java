@@ -1,5 +1,11 @@
 package facilito.codigo.app.dflores.com.myapplicationcf;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -75,5 +81,22 @@ public class Incidencia extends AppCompatActivity {
 
             }
         });
+    }
+
+    public static class ConeccionCheck extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE );
+            NetworkInfo activeNetInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            NetworkInfo activeNetInfoWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            boolean isConnectedMobile = activeNetInfoMobile != null && activeNetInfoMobile.isConnectedOrConnecting();
+            boolean isConnectedWifi   = activeNetInfoWifi   != null && activeNetInfoWifi.isConnectedOrConnecting();
+            if (isConnectedMobile || isConnectedWifi) {
+                Log.d("BUHOO", " CONECTADO A LA RED");
+            } else {
+                Log.d("BUHOO", " DESCONECTADO DE LA RED");
+            }
+        }
     }
 }
