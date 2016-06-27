@@ -86,7 +86,6 @@ public class Incidencia extends AppCompatActivity {
     public static class ConeccionCheck extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE );
             NetworkInfo activeNetInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
             NetworkInfo activeNetInfoWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
