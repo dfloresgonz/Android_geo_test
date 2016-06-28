@@ -116,6 +116,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
     public Void getIncidenciasRemote(List<IncidenciaBean> lstIncidenciasRemote, DBController _controller) {
         //this.lstIncidenciasRemote = lstIncidenciasRemote;
         for (IncidenciaBean pend : lstIncidenciasRemote) {
+            Log.d("BUHOO", "a insertar: "+pend);
             controller.insertarIncidencia(pend);
         }
         lstIncidenciasRemote = controller.getAllIncidencias();

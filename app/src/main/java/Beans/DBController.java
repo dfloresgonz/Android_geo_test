@@ -47,6 +47,7 @@ public class DBController extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         int newId = this.getNextId();
         values.put("id_incidencia_local", newId);
+        values.put("id_incidencia_remota", incidencia.getIdIncidenciaRemota());
         values.put("titulo", incidencia.getTitulo());
         values.put("descripcion", incidencia.getDescripcion());
         values.put("synched", incidencia.getEstadoSync());
