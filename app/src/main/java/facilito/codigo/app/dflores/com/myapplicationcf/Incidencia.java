@@ -215,7 +215,6 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                     String titulo_incidencia = ((EditText) layout.findViewById(R.id.titulo_incidencia)).getText().toString();
                     String descripcion_incidencia = ((EditText) layout.findViewById(R.id.descripcion_incidencia)).getText().toString();
                     int newId = controller.insertarIncidencia(new IncidenciaBean(0, 0, titulo_incidencia, descripcion_incidencia,0));
-                    Log.d("BUHOO", "newIdnewIdnewId: "+newId);
                     boolean conectado = checkInternet(ctx);
 
                     if(conectado) {
