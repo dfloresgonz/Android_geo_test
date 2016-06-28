@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         int idUsuario = pref.getInt("ID_USUARIO", 0);
         Log.d("VER", "USUARIO: " + idUsuario);
         if(idUsuario != 0) {
-            Intent nextPage = new Intent(MainActivity.this, ByPass.class);
+            Intent nextPage = new Intent(MainActivity.this, Incidencia.class);
             startActivity(nextPage);
         }
     }

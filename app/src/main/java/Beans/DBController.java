@@ -5,6 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +26,11 @@ public class DBController extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         String query;
-        query = "CREATE TABLE IF NOT EXISTS incidencia ( id_incidencia INTEGER PRIMARY KEY, titulo TEXT, descripcion TEXT, synched INTEGER)";
+        query = "CREATE TABLE IF NOT EXISTS incidencia ( id_incidencia_local  INTEGER PRIMARY KEY, " +
+                                                        "id_incidencia_remota INTEGER, " +
+                                                        "titulo               TEXT," +
+                                                        "descripcion          TEXT, " +
+                                                        "synched              INTEGER)";
         database.execSQL(query);
     }
 
@@ -35,31 +42,71 @@ public class DBController extends SQLiteOpenHelper {
         onCreate(database);*/
     }
 
-    public void insertarIncidencia(IncidenciaBean incidencia) {
+    public int insertarIncidencia(IncidenciaBean incidencia) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("id_incidencia", this.getNextId());
+        int newId = this.getNextId();
+        values.put("id_incidencia_local", newId);
         values.put("titulo", incidencia.getTitulo());
         values.put("descripcion", incidencia.getDescripcion());
         values.put("synched", incidencia.getEstadoSync());
         database.insert("incidencia", null, values);
         database.close();
+        return newId;
     }
 
     public ArrayList<IncidenciaBean> getAllIncidencias() {
-        //ArrayList<HashMap<String, String>> wordList;
         ArrayList<IncidenciaBean> lstIncidencias = new ArrayList<IncidenciaBean>();
-        //wordList = new ArrayList<HashMap<String, String>>();
         String sql = "SELECT * FROM incidencia";
         SQLiteDatabase database = this.getWritableDatabase();
         Cursor cursor = database.rawQuery(sql, null);
         if (cursor.moveToFirst()) {
             do {
-                int synched = (cursor.getInt(3) == 1 ? R.drawable.synched : R.drawable.notsynched);
+                int synched = (cursor.getInt(4) == 1 ? R.drawable.synched : R.drawable.notsynched);
                 lstIncidencias.add(new IncidenciaBean(cursor.getInt(0),
-                                                      cursor.getString(1),
+                                                      cursor.getInt(1),
                                                       cursor.getString(2),
+                                                      cursor.getString(3),
                                                       synched));
+            } while (cursor.moveToNext());
+        }
+        database.close();
+        return lstIncidencias;
+    }
+
+    public JSONObject getIdsRemotosIncidencias() {
+        JSONObject jsonGeneral = new JSONObject();
+        ArrayList<IncidenciaBean> lstIncidencias = new ArrayList<IncidenciaBean>();
+        String sql = "SELECT id_incidencia_remota FROM incidencia WHERE synched = 1";
+        SQLiteDatabase database = this.getWritableDatabase();
+        Cursor cursor = database.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.accumulate("id_incidencia_remoto", cursor.getInt(0));
+                    jsonGeneral.accumulate("objLocal", jsonObject);
+                } catch(Exception e) {
+                    //...
+                }
+            } while (cursor.moveToNext());
+        }
+        database.close();
+        return jsonGeneral;
+    }
+
+    public ArrayList<IncidenciaBean> getUnsynchedIncidencias() {
+        ArrayList<IncidenciaBean> lstIncidencias = new ArrayList<IncidenciaBean>();
+        String sql = "SELECT * FROM incidencia WHERE synched = 0";
+        SQLiteDatabase database = this.getWritableDatabase();
+        Cursor cursor = database.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                lstIncidencias.add(new IncidenciaBean(cursor.getInt(0),
+                                                      cursor.getInt(1),
+                                                      cursor.getString(2),
+                                                      cursor.getString(3),
+                                                      cursor.getInt(4)));
             } while (cursor.moveToNext());
         }
         database.close();
@@ -69,7 +116,7 @@ public class DBController extends SQLiteOpenHelper {
     public int getNextId() {
         int id = 1;
         SQLiteDatabase database = this.getWritableDatabase();
-        String sql = "SELECT MAX(id_incidencia) FROM incidencia";
+        String sql = "SELECT MAX(id_incidencia_local)+1 FROM incidencia";
         Cursor cursor = database.rawQuery(sql, null);
         try {
             if(cursor != null && cursor.moveToFirst()) {
@@ -83,7 +130,7 @@ public class DBController extends SQLiteOpenHelper {
 
     public int dbSyncCount(){
         int count = 0;
-        String selectQuery = "SELECT * FROM incidencia where synched = '0' ";
+        String selectQuery = "SELECT * FROM incidencia where synched = 0 ";
         SQLiteDatabase database = this.getWritableDatabase();
         Cursor cursor = database.rawQuery(selectQuery, null);
         count = cursor.getCount();
@@ -101,9 +148,19 @@ public class DBController extends SQLiteOpenHelper {
         return msg;
     }
 
-    public void updateSyncStatus(String id){
+    public void updateSyncStatus(int idIncidenciaLocal){
         SQLiteDatabase database = this.getWritableDatabase();
-        String updateQuery = "Update incidencia set synched = '1' where id_incidencia="+"'"+ id +"'";
+        String updateQuery = "UPDATE incidencia" +
+                             "   SET synched = 1" +
+                             " WHERE id_incidencia_local = "+idIncidenciaLocal;
+        //Log.d("query",updateQuery);
+        database.execSQL(updateQuery);
+        database.close();
+    }
+
+    public void clearDB(){
+        SQLiteDatabase database = this.getWritableDatabase();
+        String updateQuery = "DELETE FROM incidencia";
         //Log.d("query",updateQuery);
         database.execSQL(updateQuery);
         database.close();

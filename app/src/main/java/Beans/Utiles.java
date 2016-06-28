@@ -12,9 +12,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import Interfaces.IncidenciasInterface;
 import Servicios.ComboService;
 import Servicios.ComunidadService;
 import Servicios.ImagenService;
+import Servicios.IncidenciasService;
+import Servicios.InsertarIncidenciaService;
 import Servicios.PublicidadService;
 
 /**
@@ -114,6 +118,20 @@ public class Utiles {
         ComunidadService servicioComunidad = new ComunidadService();
         servicioComunidad.getResponse = getResponse;
         servicioComunidad.execute(servicio);
+    }
+
+    public static void verificarIncidenciasNewRemotoServicio(JSONObject jsonGeneral, DBController controller, IncidenciasInterface incidenciasInterface) {
+        String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/getIncidenciasRemotosNew?objConsulta="+jsonGeneral;
+        IncidenciasService incidenciasService = new IncidenciasService(controller);
+        incidenciasService.incidenciasInterface = incidenciasInterface;
+        incidenciasService.execute(servicio);
+    }
+
+    public static void insertarIncidenciasServicio(JSONObject jsonGeneral, DBController controller, IncidenciasInterface incidenciasInterface) {
+        String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/insertarIncidencia?objInsert="+jsonGeneral;
+        InsertarIncidenciaService incidenciasService = new InsertarIncidenciaService(controller);
+        incidenciasService.incidenciasInterface = incidenciasInterface;
+        incidenciasService.execute(servicio);
     }
 
     public static Publicidad getPublicidad(Drawable imagen) {

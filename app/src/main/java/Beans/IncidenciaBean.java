@@ -5,24 +5,26 @@ package Beans;
  */
 public class IncidenciaBean {
 
-    private int idIncidencia;
+    private int idIncidenciaLocal;
+    private int idIncidenciaRemota;
     private String titulo;
     private String descripcion;
     private int estadoSync;
 
-    public IncidenciaBean(int idIncidencia, String titulo, String descripcion, int estadoSync) {
-        this.setIdIncidencia(idIncidencia);
+    public IncidenciaBean(int idIncidenciaLocal, int idIncidenciaRemota, String titulo, String descripcion, int estadoSync) {
+        this.setIdIncidenciaLocal(idIncidenciaLocal);
+        this.setIdIncidenciaRemota(idIncidenciaRemota);
         this.setTitulo(titulo);
         this.setDescripcion(descripcion);
         this.setEstadoSync(estadoSync);
     }
 
-    public int getIdIncidencia() {
-        return idIncidencia;
+    public int getIdIncidenciaLocal() {
+        return idIncidenciaLocal;
     }
 
-    public void setIdIncidencia(int idIncidencia) {
-        this.idIncidencia = idIncidencia;
+    public void setIdIncidenciaLocal(int idIncidenciaLocal) {
+        this.idIncidenciaLocal = idIncidenciaLocal;
     }
 
     public String getTitulo() {
@@ -47,5 +49,13 @@ public class IncidenciaBean {
 
     public void setEstadoSync(int estadoSync) {
         this.estadoSync = estadoSync;
+    }
+
+    public int getIdIncidenciaRemota() {
+        return idIncidenciaRemota;
+    }
+
+    public void setIdIncidenciaRemota(int idIncidenciaRemota) {
+        this.idIncidenciaRemota = idIncidenciaRemota;
     }
 }
