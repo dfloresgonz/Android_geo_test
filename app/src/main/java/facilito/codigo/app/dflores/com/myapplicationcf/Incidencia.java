@@ -91,6 +91,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                 }
             } else if(unsynched == 0) {
                 JSONObject jsonIdsLocalesSynched = controller.getIdsRemotosIncidencias();
+                Log.d("BUHOO", "jsonIdsLocalesSynched: "+jsonIdsLocalesSynched);
                 Utiles.verificarIncidenciasNewRemotoServicio(jsonIdsLocalesSynched, controller, this);
             }
         } else {
@@ -127,7 +128,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
     @Override
     public Void getIncidenciasInsertadas(List<IncidenciaBean> lstIncidenciasRemote, DBController _controller) {
         for (IncidenciaBean pend : lstIncidenciasRemote) {
-            controller.updateSyncStatus(pend.getIdIncidenciaLocal());
+            controller.updateSyncStatus(pend.getIdIncidenciaLocal(), pend.getIdIncidenciaRemota());
         }
         List<IncidenciaBean> newListUI = controller.getAllIncidencias();
         this.actualizarUI(newListUI);
@@ -193,7 +194,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         @Override
         public Void getIncidenciasInsertadas(List<IncidenciaBean> lstIncidenciasRemote, DBController controller) {
             for (IncidenciaBean pend : lstIncidenciasRemote) {
-                controller.updateSyncStatus(pend.getIdIncidenciaLocal());
+                controller.updateSyncStatus(pend.getIdIncidenciaLocal(), pend.getIdIncidenciaRemota());
             }
             List<IncidenciaBean> newListUI = controller.getAllIncidencias();
             actualizarUI(newListUI);
@@ -205,7 +206,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         try {
             LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View layout = inflater.inflate(R.layout.popup_layout, (ViewGroup) findViewById(R.id.popup_element));
-            pw = new PopupWindow(layout, 600, 600, true);
+            pw = new PopupWindow(layout, 700, 700, true);
             pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
             Button registrarButton = (Button) layout.findViewById(R.id.btnRegistrar);
             ctx = this;
