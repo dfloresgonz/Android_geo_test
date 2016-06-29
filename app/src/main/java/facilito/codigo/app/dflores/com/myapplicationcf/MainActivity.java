@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
                         String nombreUsuario = mainResponseObject.getString("nombrecompleto");
                         String correo = mainResponseObject.getString("correo");
                         String foto = mainResponseObject.getString("foto_persona");
-                        Log.d("BUHOO", "FOTOOO:::::: "+foto);
                         /*Usuario usuario = new Usuario(idUsuario, nombreUsuario, correo, foto);
                         nextPage.putExtra("BeanUsuario", usuario);*/
                         editor.putString("NOMBRE_USUARIO", nombreUsuario);

@@ -1,6 +1,9 @@
 package Beans;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONObject;
@@ -53,6 +56,15 @@ public class Utiles {
             Log.d("BUHOO", "errorrrr readJSONFeed: " + errors.toString());
         }
         return response.toString();
+    }
+
+    public static boolean checkInternet(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE );
+        NetworkInfo activeNetInfoMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo activeNetInfoWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        boolean isConnectedMobile = activeNetInfoMobile != null && activeNetInfoMobile.isConnectedOrConnecting();
+        boolean isConnectedWifi   = activeNetInfoWifi   != null && activeNetInfoWifi.isConnectedOrConnecting();
+        return isConnectedMobile || isConnectedWifi;
     }
 
     public static double round(double value, int precision) {
@@ -131,7 +143,6 @@ public class Utiles {
     public static void verificarIncidenciasNewRemotoServicio(JSONObject jsonGeneral, DBController controller, IncidenciasInterface incidenciasInterface) {
         if(MapaVariables.ipServer == null) {
             MapaVariables.ipServer = controller.getCtx().getString(R.string.ip_server);
-            Log.d("BUHOO", "____MapaVariables.ipServer::::: "+MapaVariables.ipServer+"   .....>>>>> "+controller.getCtx().getString(R.string.ip_server));
         }
         String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/getIncidenciasRemotosNew?objConsulta="+jsonGeneral;
         IncidenciasService incidenciasService = new IncidenciasService(controller);
@@ -142,7 +153,6 @@ public class Utiles {
     public static void insertarIncidenciasServicio(JSONObject jsonGeneral, DBController controller, IncidenciasInterface incidenciasInterface) {
         if(MapaVariables.ipServer == null) {
             MapaVariables.ipServer = controller.getCtx().getString(R.string.ip_server);
-            Log.d("BUHOO", "MapaVariables.ipServer::::: "+MapaVariables.ipServer+"   .....>>>>> "+controller.getCtx().getString(R.string.ip_server));
         }
         String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/insertarIncidencia?objInsert="+jsonGeneral;
         InsertarIncidenciaService incidenciasService = new InsertarIncidenciaService(controller);
