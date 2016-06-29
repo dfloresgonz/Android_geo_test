@@ -34,7 +34,7 @@ public class InsertarIncidenciaService extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... params) {
         String result = Utiles.readJSONFeed(params[0]);
         try {
-            Log.d("BUHOO","......resultLength:: "+result.length());
+            Log.d("BUHOO","......resultLength:: "+result.length()+"   result: "+result);
             if(result != null && result.length() > 0) {
                 JSONObject mainResponseObject = new JSONObject(result);
                 JSONArray objArry = mainResponseObject.getJSONArray("incidencias");

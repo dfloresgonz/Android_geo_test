@@ -20,6 +20,7 @@ import Servicios.ImagenService;
 import Servicios.IncidenciasService;
 import Servicios.InsertarIncidenciaService;
 import Servicios.PublicidadService;
+import facilito.codigo.app.dflores.com.myapplicationcf.R;
 
 /**
  * Created by dflores on 11/02/2016.
@@ -37,6 +38,7 @@ public class Utiles {
             } catch(Exception e) {
                 httpResponse = HttpURLConnection.HTTP_UNAVAILABLE;
             }
+            Log.d("BUHOO", "httpResponse: "+httpResponse+"   ___stringUrl: "+stringUrl);
             if (httpResponse == HttpURLConnection.HTTP_OK) {
                 BufferedReader input = new BufferedReader(new InputStreamReader(httpconn.getInputStream()),8192);
                 String strLine = null;
@@ -127,6 +129,10 @@ public class Utiles {
     }
 
     public static void verificarIncidenciasNewRemotoServicio(JSONObject jsonGeneral, DBController controller, IncidenciasInterface incidenciasInterface) {
+        if(MapaVariables.ipServer == null) {
+            MapaVariables.ipServer = controller.getCtx().getString(R.string.ip_server);
+            Log.d("BUHOO", "____MapaVariables.ipServer::::: "+MapaVariables.ipServer+"   .....>>>>> "+controller.getCtx().getString(R.string.ip_server));
+        }
         String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/getIncidenciasRemotosNew?objConsulta="+jsonGeneral;
         IncidenciasService incidenciasService = new IncidenciasService(controller);
         incidenciasService.incidenciasInterface = incidenciasInterface;
@@ -134,6 +140,10 @@ public class Utiles {
     }
 
     public static void insertarIncidenciasServicio(JSONObject jsonGeneral, DBController controller, IncidenciasInterface incidenciasInterface) {
+        if(MapaVariables.ipServer == null) {
+            MapaVariables.ipServer = controller.getCtx().getString(R.string.ip_server);
+            Log.d("BUHOO", "MapaVariables.ipServer::::: "+MapaVariables.ipServer+"   .....>>>>> "+controller.getCtx().getString(R.string.ip_server));
+        }
         String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/insertarIncidencia?objInsert="+jsonGeneral;
         InsertarIncidenciaService incidenciasService = new InsertarIncidenciaService(controller);
         incidenciasService.incidenciasInterface = incidenciasInterface;

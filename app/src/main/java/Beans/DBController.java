@@ -19,8 +19,11 @@ import facilito.codigo.app.dflores.com.myapplicationcf.R;
  */
 public class DBController extends SQLiteOpenHelper {
 
+    private Context ctx;
+
     public DBController(Context applicationcontext) {
         super(applicationcontext, "androidsqlite.db", null, 1);
+        this.ctx = applicationcontext;
     }
 
     @Override
@@ -155,7 +158,7 @@ public class DBController extends SQLiteOpenHelper {
                              "   SET synched = 1," +
                              "       id_incidencia_remota = " +idIncidenciaRemota+
                              " WHERE id_incidencia_local  = "+idIncidenciaLocal;
-        //Log.d("query",updateQuery);
+        //Log.d("BUHOO","SQL UPDATE: "+updateQuery);
         database.execSQL(updateQuery);
         database.close();
     }
@@ -166,5 +169,14 @@ public class DBController extends SQLiteOpenHelper {
         //Log.d("query",updateQuery);
         database.execSQL(updateQuery);
         database.close();
+    }
+
+
+    public Context getCtx() {
+        return ctx;
+    }
+
+    public void setCtx(Context ctx) {
+        this.ctx = ctx;
     }
 }

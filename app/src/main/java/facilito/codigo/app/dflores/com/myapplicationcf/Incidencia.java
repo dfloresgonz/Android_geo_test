@@ -181,9 +181,10 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
             boolean conectado = checkInternet(context);
             if (conectado) {
                 DBController controller = new DBController(context);
-                int unsynched = controller.dbSyncCount();
+                int unsynched = controller.dbSyncCount();Log.d("BUHOO", "unsynched: "+unsynched);
                 if(unsynched > 0) {
                     List<IncidenciaBean> pendientes = controller.getUnsynchedIncidencias();
+                    Log.d("BUHOO", "pendientes.size(): "+pendientes.size());
                     if(pendientes.size() > 0) {
                         JSONObject jsonGeneral = new JSONObject();
                         for (IncidenciaBean pend : pendientes) {
@@ -224,6 +225,11 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                 controller.updateSyncStatus(pend.getIdIncidenciaLocal(), pend.getIdIncidenciaRemota());
             }
             List<IncidenciaBean> newListUI = controller.getAllIncidencias();
+
+            for (IncidenciaBean pend : newListUI) {
+                Log.d("BUHOO", "newListUI: "+pend.toString());
+            }
+
             actualizarUI(newListUI);
             return null;
         }
@@ -271,11 +277,10 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         try {
             LayoutInflater layoutInflater = LayoutInflater.from(Incidencia.this);
             View promptView = layoutInflater.inflate(R.layout.popup_layout, null);
-            /*AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Incidencia.this);
-            alertDialogBuilder.setView(promptView);*/
+
             ctx = this;
             final EditText txtTitulo = (EditText) promptView.findViewById(R.id.titulo_incidencia);
-            /*final EditText */txtDescri = (EditText) promptView.findViewById(R.id.descripcion_incidencia);
+            txtDescri = (EditText) promptView.findViewById(R.id.descripcion_incidencia);
             ImageButton btnSpeak = (ImageButton) promptView.findViewById(R.id.btnSpeak);
 
             btnSpeak.setOnClickListener(new View.OnClickListener() {
@@ -291,7 +296,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
             final AlertDialog dialog = new AlertDialog.Builder(ctx)
                     .setView(promptView)
                     .setTitle("Registro de Incidencias")
-                    .setPositiveButton("REGISTRAR", null) //Set to null. We override the onclick
+                    .setPositiveButton("REGISTRAR", null)
                     .setNegativeButton("CANCELAR", null)
                     .create();
 
@@ -302,11 +307,11 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                     b.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            String titulo_incidencia      = txtTitulo.getText().toString();
-                            String descripcion_incidencia = txtDescri.getText().toString();
+                            String titulo_incidencia      = txtTitulo.getText().toString().trim();
+                            String descripcion_incidencia = txtDescri.getText().toString().trim();
 
                             if(titulo_incidencia.trim().length() == 0 || descripcion_incidencia.trim().length() == 0) {
-                                Toast.makeText(ctx, "Escriba el título y/o descripción", Toast.LENGTH_LONG).show();
+                                Toast.makeText(ctx, "Escriba el título y/o la descripción", Toast.LENGTH_LONG).show();
                                 return;
                             }
                             int newId = controller.insertarIncidencia(new IncidenciaBean(0, 0, titulo_incidencia, descripcion_incidencia,0));

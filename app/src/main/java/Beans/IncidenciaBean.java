@@ -58,4 +58,12 @@ public class IncidenciaBean {
     public void setIdIncidenciaRemota(int idIncidenciaRemota) {
         this.idIncidenciaRemota = idIncidenciaRemota;
     }
+
+    public String toString() {
+        return "ID local: "+getIdIncidenciaLocal()+"\n"+
+               "ID remoto: "+getIdIncidenciaRemota()+"\n"+
+                "Titulo: "+getTitulo()+"\n"+
+                "Desc: "+getDescripcion()+"\n"+
+                "Estado: "+getEstadoSync();
+    }
 }
