@@ -31,7 +31,13 @@ public class Utiles {
         try {
             URL url = new URL(stringUrl);
             HttpURLConnection httpconn = (HttpURLConnection)url.openConnection();
-            if (httpconn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            int httpResponse = HttpURLConnection.HTTP_UNAVAILABLE;
+            try {
+                httpResponse = httpconn.getResponseCode();
+            } catch(Exception e) {
+                httpResponse = HttpURLConnection.HTTP_UNAVAILABLE;
+            }
+            if (httpResponse == HttpURLConnection.HTTP_OK) {
                 BufferedReader input = new BufferedReader(new InputStreamReader(httpconn.getInputStream()),8192);
                 String strLine = null;
                 while ((strLine = input.readLine()) != null) {

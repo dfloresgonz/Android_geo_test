@@ -153,7 +153,7 @@ public class DBController extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
         String updateQuery = "UPDATE incidencia" +
                              "   SET synched = 1," +
-                             "       id_incidencia_remoto = " +idIncidenciaRemota+
+                             "       id_incidencia_remota = " +idIncidenciaRemota+
                              " WHERE id_incidencia_local  = "+idIncidenciaLocal;
         //Log.d("query",updateQuery);
         database.execSQL(updateQuery);

@@ -39,15 +39,18 @@ public class IncidenciasService extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... params) {
         String result = Utiles.readJSONFeed(params[0]);
         try {
-            JSONObject mainResponseObject = new JSONObject(result);
-            JSONArray objArry = mainResponseObject.getJSONArray("incidencias");
-            for (int i = 0; i < objArry.length(); ++i) {
-                JSONObject publ = objArry.getJSONObject(i);
-                Log.d("BUHOO", "getJSONObject____: "+objArry.getJSONObject(i));
-                int idIncidenciaRemoto = publ.getInt("id_incidencia");
-                String titulo          = publ.getString("titulo");
-                String descripcion     = publ.getString("descripcion");
-                arryDraw.add(new IncidenciaBean(0, idIncidenciaRemoto, titulo, descripcion, 1) );
+            Log.d("BUHOO","......result:: "+result);
+            if(result != null && result.length() > 0) {
+                JSONObject mainResponseObject = new JSONObject(result);
+                JSONArray objArry = mainResponseObject.getJSONArray("incidencias");
+                for (int i = 0; i < objArry.length(); ++i) {
+                    JSONObject publ = objArry.getJSONObject(i);
+                    Log.d("BUHOO", "getJSONObject____: "+objArry.getJSONObject(i));
+                    int idIncidenciaRemoto = publ.getInt("id_incidencia");
+                    String titulo          = publ.getString("titulo");
+                    String descripcion     = publ.getString("descripcion");
+                    arryDraw.add(new IncidenciaBean(0, idIncidenciaRemoto, titulo, descripcion, 1) );
+                }
             }
         } catch(Exception e) {
             StringWriter errors = new StringWriter();

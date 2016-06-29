@@ -1,13 +1,17 @@
 package facilito.codigo.app.dflores.com.myapplicationcf;
 
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,14 +25,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import Adaptadores.IncidenciasAdapter;
 import Beans.DBController;
@@ -50,6 +59,10 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
     private PopupWindow pw;
     static Context ctx;
     DBController controller = new DBController(this);
+
+    EditText txtDescri;
+
+    private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +123,21 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
 
     public static void actualizarUI(List<IncidenciaBean> incidencias) {
         adapter = new IncidenciasAdapter(incidencias);
-        recycler.setAdapter(adapter);
+        if(adapter == null) {
+            Log.d("BUHOO", "ADAPTER ES NULO");
+        } else {
+            try {
+                if(recycler != null) {
+                    recycler.setAdapter(adapter);
+                } else {
+                    Log.d("BUHOO", "recycler ES NULO");
+                }
+            } catch(Exception e) {
+                StringWriter errors = new StringWriter();
+                e.printStackTrace(new PrintWriter(errors));
+                Log.d("BUHOO", " ERROR actualizarUI " + errors.toString());
+            }
+        }
     }
 
     @Override
@@ -186,8 +213,8 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
             for (IncidenciaBean pend : lstIncidenciasRemote) {
                 controller.insertarIncidencia(pend);
             }
-            lstIncidenciasRemote = controller.getAllIncidencias();
-            actualizarUI(lstIncidenciasRemote);
+            List<IncidenciaBean> lstIncidenciasRemoteLocal = controller.getAllIncidencias();
+            actualizarUI(lstIncidenciasRemoteLocal);
             return null;
         }
 
@@ -202,9 +229,161 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         }
     }
 
+    /**
+     * Showing google speech input dialog
+     * */
+    private void promptSpeechInput() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es_ES");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                        getString(R.string.speech_prompt));
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(), getString(R.string.speech_not_supported), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Receiving speech input
+     * */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    Log.d("BUHOO", "resultadooooooo: "+result.get(0));
+
+                    String texto = result.get(0)+"";
+                    txtDescri.setText(texto, TextView.BufferType.EDITABLE);
+                }
+                break;
+            }
+        }
+    }
+
     private void initiatePopupWindow() {
         try {
-            LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = LayoutInflater.from(Incidencia.this);
+            View promptView = layoutInflater.inflate(R.layout.popup_layout, null);
+            /*AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Incidencia.this);
+            alertDialogBuilder.setView(promptView);*/
+            ctx = this;
+            final EditText txtTitulo = (EditText) promptView.findViewById(R.id.titulo_incidencia);
+            /*final EditText */txtDescri = (EditText) promptView.findViewById(R.id.descripcion_incidencia);
+            ImageButton btnSpeak = (ImageButton) promptView.findViewById(R.id.btnSpeak);
+
+            btnSpeak.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    promptSpeechInput();
+                }
+            });
+
+
+
+            final AlertDialog dialog = new AlertDialog.Builder(ctx)
+                    .setView(promptView)
+                    .setTitle("Registro de Incidencias")
+                    .setPositiveButton("REGISTRAR", null) //Set to null. We override the onclick
+                    .setNegativeButton("CANCELAR", null)
+                    .create();
+
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(final DialogInterface dialog) {
+                    Button b = ((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                    b.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            String titulo_incidencia      = txtTitulo.getText().toString();
+                            String descripcion_incidencia = txtDescri.getText().toString();
+
+                            if(titulo_incidencia.trim().length() == 0 || descripcion_incidencia.trim().length() == 0) {
+                                Toast.makeText(ctx, "Escriba el título y/o descripción", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            int newId = controller.insertarIncidencia(new IncidenciaBean(0, 0, titulo_incidencia, descripcion_incidencia,0));
+                            boolean conectado = checkInternet(ctx);
+                            if(conectado) {
+                                JSONObject jsonGeneral = new JSONObject();
+                                JSONObject jsonObject = new JSONObject();
+                                try {
+                                    jsonObject.accumulate("id_incidencia_local", newId);
+                                    jsonObject.accumulate("titulo", titulo_incidencia);
+                                    jsonObject.accumulate("descripcion", descripcion_incidencia);
+                                    jsonGeneral.accumulate("objInsert", jsonObject);
+                                } catch(Exception e) {
+                                    //...
+                                }
+                                Utiles.insertarIncidenciasServicio(jsonGeneral, controller, (IncidenciasInterface) ctx);
+                            } else {
+                                List<IncidenciaBean> newListUI = controller.getAllIncidencias();
+                                actualizarUI(newListUI);
+                            }
+                            Toast.makeText(ctx, "Se registró la incidencia", Toast.LENGTH_LONG).show();
+                            dialog.cancel();
+                        }
+                    });
+                }
+            });
+            dialog.show();
+
+
+            /*alertDialogBuilder.setCancelable(false)
+                    .setPositiveButton("REGISTRAR", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            String titulo_incidencia      = txtTitulo.getText().toString();
+                            String descripcion_incidencia = txtDescri.getText().toString();
+
+                            if(titulo_incidencia.trim().length() == 0 || descripcion_incidencia.trim().length() == 0) {
+                                Toast.makeText(ctx, "Escriba el título y/o descripción", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            int newId = controller.insertarIncidencia(new IncidenciaBean(0, 0, titulo_incidencia, descripcion_incidencia,0));
+                            boolean conectado = checkInternet(ctx);
+
+                            if(conectado) {
+                                JSONObject jsonGeneral = new JSONObject();
+                                JSONObject jsonObject = new JSONObject();
+                                try {
+                                    jsonObject.accumulate("id_incidencia_local", newId);
+                                    jsonObject.accumulate("titulo", titulo_incidencia);
+                                    jsonObject.accumulate("descripcion", descripcion_incidencia);
+                                    jsonGeneral.accumulate("objInsert", jsonObject);
+
+                                } catch(Exception e) {
+                                    //...
+                                }
+                                Utiles.insertarIncidenciasServicio(jsonGeneral, controller, (IncidenciasInterface) ctx);
+                            } else {
+                                List<IncidenciaBean> newListUI = controller.getAllIncidencias();
+                                actualizarUI(newListUI);
+                            }
+                            Toast.makeText(ctx, "Se registró la incidencia", Toast.LENGTH_LONG).show();
+                            dialog.cancel();
+                        }
+                    })
+                    .setNegativeButton("CANCELAR",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+            // create an alert dialog
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.show();*/
+
+
+            /*LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View layout = inflater.inflate(R.layout.popup_layout, (ViewGroup) findViewById(R.id.popup_element));
             pw = new PopupWindow(layout, 700, 700, true);
             pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
@@ -238,8 +417,8 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                     }
                     pw.dismiss();
                 }
-            };
-            registrarButton.setOnClickListener(oclBtnOk);
+            };*/
+            //registrarButton.setOnClickListener(oclBtnOk);
 
         } catch (Exception e) {
             e.printStackTrace();

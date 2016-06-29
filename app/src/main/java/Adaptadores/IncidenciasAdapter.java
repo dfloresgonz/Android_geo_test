@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 import java.util.List;
 import Beans.IncidenciaBean;
 import facilito.codigo.app.dflores.com.myapplicationcf.R;
@@ -14,7 +16,7 @@ import facilito.codigo.app.dflores.com.myapplicationcf.R;
  * Created by diego on 25/06/2016.
  */
 public class IncidenciasAdapter extends RecyclerView.Adapter<IncidenciasAdapter.IncidenciasViewHolder>{
-    private List<IncidenciaBean> incidencias;
+    private List<IncidenciaBean> incidencias = new ArrayList<IncidenciaBean>();
 
     @Override
     public IncidenciasViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
