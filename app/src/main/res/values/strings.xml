@@ -9,6 +9,7 @@
     <string name="ip_server">buhooweb.com</string>
     <string name="speech_prompt">Di algo...</string>
     <string name="speech_not_supported">Lo siento :( tu dispositivo no soporta voz</string>
+    <string name="carpeta_archivos_subida">Buhoo_media</string>
 
 
     <string name="drawer_open">Opciones...</string>
