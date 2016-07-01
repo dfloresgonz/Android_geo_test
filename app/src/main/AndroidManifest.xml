@@ -88,7 +88,12 @@
         <activity
             android:name=".Incidencia"
             android:label="@string/title_activity_incidencias"
-            android:theme="@style/AppTheme.NoActionBar"></activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".NewIncidencia"
+            android:label="@string/title_activity_new_incidencias"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
             android:name="com.google.android.gms.version"

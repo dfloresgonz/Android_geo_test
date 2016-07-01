@@ -6,6 +6,7 @@
     <string name="title_activity_mapa">Map</string>
     <string name="title_activity_by_pass">ByPass</string>
     <string name="title_activity_incidencias">Incidencias</string>
+    <string name="title_activity_new_incidencias">Nueva Incidencia</string>
     <string name="ip_server">buhooweb.com</string>
     <string name="speech_prompt">Di algo...</string>
     <string name="speech_not_supported">Lo siento :( tu dispositivo no soporta voz</string>
