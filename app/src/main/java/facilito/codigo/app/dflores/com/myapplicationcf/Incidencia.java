@@ -112,7 +112,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                             //...
                         }
                     }
-                    Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this);
+                    Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this, null);
                 }
             } else if (unsynched == 0) {
                 JSONObject jsonIdsLocalesSynched = controller.getIdsRemotosIncidencias();
@@ -235,7 +235,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                                 //...
                             }
                         }
-                        Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this);
+                        Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this, null);
                     }
                 } else if (unsynched == 0) {
                     JSONObject jsonIdsLocalesSynched = controller.getIdsRemotosIncidencias();

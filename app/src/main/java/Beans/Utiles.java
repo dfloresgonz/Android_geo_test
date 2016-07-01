@@ -1,20 +1,32 @@
 package Beans;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Base64;
 import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONObject;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import Interfaces.IncidenciasInterface;
 import Servicios.ComboService;
@@ -56,6 +68,70 @@ public class Utiles {
             Log.d("BUHOO", "errorrrr readJSONFeed: " + errors.toString());
         }
         return response.toString();
+    }
+
+    public static String registrarIncidencia(String stringUrl, HashMap<String, String> postDataParams) {
+        String response = "";
+        try {
+            Log.d("BUHOO", " ::::registrarIncidencia::___stringUrl: "+stringUrl);
+            URL url = new URL(stringUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(15000);
+            conn.setConnectTimeout(15000);
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
+            if(postDataParams != null && postDataParams.size() > 0) {//SI ADJUNTO IMAGENES
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(getPostDataString(postDataParams));
+
+                writer.flush();
+                writer.close();
+                os.close();
+            }
+
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                response = br.readLine();
+            } else {
+                response = "Error registrarIncidencia";
+            }
+        } catch(Exception e) {
+            printearErrores(e, "ERROR registrarIncidencia: ");
+        }
+        return response;
+    }
+
+    private static String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (first) {
+                first = false;
+            } else {
+                result.append("&");
+            }
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        }
+        if(!first) {//entro al loop se setea un FLAG para validar en el server
+            result.append("&has_img="+params.size());
+        }
+
+        return result.toString();
+    }
+
+    public static String __getStringImage(Bitmap bmp){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] imageBytes = baos.toByteArray();
+        String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+        return encodedImage;
     }
 
     public static boolean checkInternet(Context context) {
@@ -150,12 +226,12 @@ public class Utiles {
         incidenciasService.execute(servicio);
     }
 
-    public static void insertarIncidenciasServicio(JSONObject jsonGeneral, DBController controller, IncidenciasInterface incidenciasInterface) {
+    public static void insertarIncidenciasServicio(JSONObject jsonGeneral, DBController controller, IncidenciasInterface incidenciasInterface, List<ImagenBean> _lstImages) {
         if(MapaVariables.ipServer == null) {
             MapaVariables.ipServer = controller.getCtx().getString(R.string.ip_server);
         }
         String servicio = "http://"+MapaVariables.ipServer+"/buhoo/servicio/insertarIncidencia?objInsert="+jsonGeneral;
-        InsertarIncidenciaService incidenciasService = new InsertarIncidenciaService(controller);
+        InsertarIncidenciaService incidenciasService = new InsertarIncidenciaService(controller, _lstImages);
         incidenciasService.incidenciasInterface = incidenciasInterface;
         incidenciasService.execute(servicio);
     }

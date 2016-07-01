@@ -1,17 +1,22 @@
 package Servicios;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import Beans.DBController;
+import Beans.ImagenBean;
 import Beans.IncidenciaBean;
 import Beans.Utiles;
 import Interfaces.IncidenciasInterface;
@@ -25,14 +30,25 @@ public class InsertarIncidenciaService extends AsyncTask<String, Void, String> {
     public IncidenciasInterface incidenciasInterface = null;
     List<IncidenciaBean> arryDraw = new ArrayList<IncidenciaBean>();
     DBController controller;
+    List<ImagenBean> lstImages;
 
-    public InsertarIncidenciaService(DBController _controller) {
+    public InsertarIncidenciaService(DBController _controller, List<ImagenBean> _lstImages) {
         controller = _controller;
+        lstImages    = _lstImages;
     }
 
     @Override
     protected String doInBackground(String... params) {
-        String result = Utiles.readJSONFeed(params[0]);
+        HashMap<String, String> postDataParams = new HashMap<>();
+        if(lstImages != null) {
+            int key = 0;
+            for (ImagenBean img : lstImages) {
+                String uploadImage = Utiles.__getStringImage(img.bitmapImage);
+                postDataParams.put("imagen_"+key, uploadImage);
+                key++;
+            }
+        }
+        String result = Utiles.registrarIncidencia(params[0], postDataParams);
         try {
             Log.d("BUHOO","......resultLength:: "+result.length()+"   result: "+result);
             if(result != null && result.length() > 0) {

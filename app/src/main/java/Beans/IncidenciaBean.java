@@ -1,5 +1,7 @@
 package Beans;
 
+import java.util.List;
+
 /**
  * Created by diego on 25/06/2016.
  */
@@ -10,6 +12,7 @@ public class IncidenciaBean {
     private String titulo;
     private String descripcion;
     private int estadoSync;
+    private List<IncidenciaImagenBean> lstImagenes;
 
     public IncidenciaBean(int idIncidenciaLocal, int idIncidenciaRemota, String titulo, String descripcion, int estadoSync) {
         this.setIdIncidenciaLocal(idIncidenciaLocal);
@@ -65,5 +68,13 @@ public class IncidenciaBean {
                 "Titulo: "+getTitulo()+"\n"+
                 "Desc: "+getDescripcion()+"\n"+
                 "Estado: "+getEstadoSync();
+    }
+
+    public List<IncidenciaImagenBean> getLstImagenes() {
+        return lstImagenes;
+    }
+
+    public void setLstImagenes(List<IncidenciaImagenBean> lstImagenes) {
+        this.lstImagenes = lstImagenes;
     }
 }

@@ -1,54 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/popup_element"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp">
 
-    <EditText
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="Título"
-        android:id="@+id/titulo_incidencia" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:id="@+id/descripcion_incidencia"
-        android:hint="Descripción"
-        android:inputType="text|textMultiLine" />
-    <ImageButton
-        android:id="@+id/btnSpeak"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:scaleType="fitXY"
-        android:background="@null"
-        android:src="@drawable/ico_mic"
-        android:layout_below="@+id/descripcion_incidencia"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="5dp" />
-    <ImageButton
-        android:id="@+id/btnAbrirCamara"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:scaleType="fitXY"
-        android:background="@null"
-        android:src="@drawable/camara"
-        android:layout_marginLeft="15dp"
-        android:layout_marginStart="15dp"
-        android:layout_alignTop="@+id/btnSpeak"
-        android:layout_toRightOf="@+id/btnSpeak"
-        android:layout_toEndOf="@+id/btnSpeak" />
-
-    <!--ImageView
+    <RadioGroup
+        android:id="@+id/radioGrupo"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView2"
-        android:layout_marginTop="213dp"
-        android:src="@drawable/banner_ad"
-         /-->
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Usar mi cámara"
+            android:id="@+id/btnCamera"
+            android:checked="false" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Buscar en mi galería"
+            android:id="@+id/btnGaleria"
+            android:checked="false" />
+    </RadioGroup>
 
 
-</RelativeLayout>
+</LinearLayout>

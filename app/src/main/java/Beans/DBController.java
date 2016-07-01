@@ -35,6 +35,14 @@ public class DBController extends SQLiteOpenHelper {
                                                         "descripcion          TEXT, " +
                                                         "synched              INTEGER)";
         database.execSQL(query);
+        //
+        query = "CREATE TABLE IF NOT EXISTS incidencia_images ( id_incidencia_local  INTEGER NOT NULL, " +
+                                                               "id_incidencia_remota INTEGER, "+
+                                                               "correlativo          INTEGER NOT NULL," +
+                                                               "rutaImagen           TEXT,"+
+                                                               "idImagen             INTEGER," +
+                                                               "PRIMARY KEY ( id_incidencia_local, correlativo) )";
+        database.execSQL(query);
     }
 
     @Override
@@ -55,6 +63,19 @@ public class DBController extends SQLiteOpenHelper {
         values.put("descripcion", incidencia.getDescripcion());
         values.put("synched", incidencia.getEstadoSync());
         database.insert("incidencia", null, values);
+
+        if(incidencia.getLstImagenes() != null && incidencia.getLstImagenes().size() > 0) {
+            for (IncidenciaImagenBean imgBean : incidencia.getLstImagenes()) {
+                ContentValues valuesImg = new ContentValues();
+                valuesImg.put("id_incidencia_local", newId);
+                valuesImg.put("id_incidencia_remota", incidencia.getIdIncidenciaRemota());
+                valuesImg.put("correlativo", imgBean.getCorrelativo());
+                valuesImg.put("rutaImagen", imgBean.getRutaImagen());
+                valuesImg.put("idImagen", imgBean.getIdImagen());
+                database.insert("incidencia_images", null, valuesImg);
+            }
+        }
+
         database.close();
         return newId;
     }
