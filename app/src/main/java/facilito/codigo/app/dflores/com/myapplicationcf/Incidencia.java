@@ -62,23 +62,21 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
     List<IncidenciaBean> lstIncidenciasRemote = new ArrayList<IncidenciaBean>();
     DBController controller = new DBController(this);
 
-    EditText txtDescri;
-
-    private final int REQ_CODE_SPEECH_INPUT = 100;
-
-    private Uri fileUri;
     private String IMAGE_DIRECTORY_NAME = null;
-    private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 200;
+
+    static Context ctx;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
-    private GoogleApiClient client;
+    //private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.incidencias);
+
+        ctx = this;
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarInc);
         setSupportActionBar(toolbar);
@@ -92,7 +90,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         lManager = new LinearLayoutManager(this);
         recycler.setLayoutManager(lManager);
 
-        adapter = new IncidenciasAdapter(lstIncidenciasRemote);
+        adapter = new IncidenciasAdapter(lstIncidenciasRemote, ctx);
         recycler.setAdapter(adapter);
         boolean conectado = Utiles.checkInternet(this);
         if (conectado) {
@@ -131,11 +129,11 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         });
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     public static void actualizarUI(List<IncidenciaBean> incidencias) {
-        adapter = new IncidenciasAdapter(incidencias);
+        adapter = new IncidenciasAdapter(incidencias, ctx);
         if (recycler != null) {
             recycler.setAdapter(adapter);
         }
@@ -174,41 +172,11 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
     @Override
     public void onStart() {
         super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Incidencia Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://facilito.codigo.app.dflores.com.myapplicationcf/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Incidencia Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://facilito.codigo.app.dflores.com.myapplicationcf/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
     }
 
     public static class ConeccionCheck extends BroadcastReceiver implements IncidenciasInterface {

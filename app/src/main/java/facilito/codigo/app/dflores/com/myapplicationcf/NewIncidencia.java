@@ -84,9 +84,7 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
     private RadioButton radioButton;
 
     DBController controller = new DBController(this);
-    //List<Bitmap> lstBitmaps = new ArrayList<Bitmap>();
     List<ImagenBean> lstImagenes = new ArrayList<ImagenBean>();
-    //int[] lstIds = new int[CANT_IMAGENES_TOTAL];
 
     static Context ctx;
 
@@ -98,7 +96,6 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
         ctx = this;
 
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        //float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
         DP_WIDTH = displayMetrics.widthPixels / displayMetrics.density;
 
         IMAGEN_THUMBNAIL_SIZE_DP = (int) (DP_WIDTH - 25) / CANT_IMAGENES_HORIZONTAL;
@@ -111,25 +108,15 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
 
         if(savedInstanceState != null) {
             fileUri    = savedInstanceState.getParcelable("FILE_URI");
-            //lstBitmaps = savedInstanceState.getParcelableArrayList("LIST_BITMAPS");
             lastId     = savedInstanceState.getInt("LAST_ID");
-            //lstIds     = savedInstanceState.getIntArray("LIST_IDS");
             idRadioSeleccionado = savedInstanceState.getInt("ID_RADIO_SELECCIONADO");
             lstImagenes = savedInstanceState.getParcelableArrayList("LIST_IMAGENES");
 
-            //int indexFoto = 0;
             for (ImagenBean imgBean : lstImagenes) {
                 if(imgBean.bitmapImage != null) {
                     agregarFotoUI(imgBean.indexImagen, imgBean.bitmapImage, imgBean.idImagen);
                 }
             }
-            /*for (Bitmap bitmap : lstBitmaps) {
-                int idImagen = lstIds[indexFoto];
-                if (bitmap != null) {
-                    agregarFotoUI(indexFoto, bitmap, idImagen);
-                    indexFoto++;
-                }
-            }*/
         } else {
             //Log.d("BUHOO", "PRIMERA VEZ");
         }
@@ -174,7 +161,7 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
 
     private void openDialogImagen() {
         if(CANT_IMAGENES_TOTAL == lstImagenes.size()) {
-            Toast.makeText(ctx, "Solo se pueden agregar 8 imágenes", Toast.LENGTH_LONG).show();
+            Toast.makeText(ctx, "Solo se pueden agregar "+CANT_IMAGENES_TOTAL+" imágenes", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -526,8 +513,6 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable("FILE_URI", fileUri);
-        //outState.putParcelableArrayList("LIST_BITMAPS", (ArrayList<? extends Parcelable>) lstBitmaps);
-        //outState.putIntArray("LIST_IDS", lstIds);
         outState.putInt("LAST_ID", lastId);
         outState.putInt("ID_RADIO_SELECCIONADO", idRadioSeleccionado);
         outState.putParcelableArrayList("LIST_IMAGENES", (ArrayList<? extends Parcelable>) lstImagenes);

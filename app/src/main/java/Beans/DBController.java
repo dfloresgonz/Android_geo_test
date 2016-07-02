@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import facilito.codigo.app.dflores.com.myapplicationcf.R;
 
@@ -192,6 +193,44 @@ public class DBController extends SQLiteOpenHelper {
         database.close();
     }
 
+    public IncidenciaBean getIncidenciaById(int idIncidenciaLocal) {
+        IncidenciaBean incidencia = null;
+        SQLiteDatabase database = this.getWritableDatabase();
+        String sql = "SELECT * FROM incidencia WHERE id_incidencia_local = "+idIncidenciaLocal;
+        Cursor cursor = database.rawQuery(sql, null);
+        try {
+            if(cursor != null && cursor.moveToFirst()) {
+                incidencia = new IncidenciaBean(cursor.getInt(0),
+                                                cursor.getInt(1),
+                                                cursor.getString(2),
+                                                cursor.getString(3),
+                                                cursor.getInt(4));
+                List<IncidenciaImagenBean> lstImagenes = getImagenesByIncidencia(idIncidenciaLocal);
+                incidencia.setLstImagenes(lstImagenes);
+            }
+        } catch(Exception e) {
+            Utiles.printearErrores(e, "ERROR getNextId: ");
+        }
+        return incidencia;
+    }
+
+    public List<IncidenciaImagenBean> getImagenesByIncidencia(int idIncidenciaLocal) {
+        List<IncidenciaImagenBean> lstImagenes = new ArrayList<IncidenciaImagenBean>();
+        String sql = "SELECT * FROM incidencia_images WHERE id_incidencia_local = "+idIncidenciaLocal;
+        SQLiteDatabase database = this.getWritableDatabase();
+        Cursor cursor = database.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            do {
+                lstImagenes.add(new IncidenciaImagenBean(cursor.getInt(0),
+                                                         cursor.getInt(1),
+                                                         cursor.getInt(2),
+                                                         cursor.getString(3),
+                                                         cursor.getInt(4)));
+            } while (cursor.moveToNext());
+        }
+        database.close();
+        return lstImagenes;
+    }
 
     public Context getCtx() {
         return ctx;
