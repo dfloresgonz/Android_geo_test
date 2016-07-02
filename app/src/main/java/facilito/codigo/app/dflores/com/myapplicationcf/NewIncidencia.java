@@ -306,30 +306,8 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
         }
     }
 
-    private Bitmap __getBitmap(String filePath) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 8;
-        Bitmap _bitmap = BitmapFactory.decodeFile(filePath, options);
-        Log.d("BUHOO", "ANCHO: "+_bitmap.getWidth()+"  ALTO: "+_bitmap.getHeight());
-        if(_bitmap.getWidth() > 1100 || _bitmap.getHeight() > 1100) {
-            Log.d("BUHOO", "IMAGEN SUPERA LAS DIMENSIONES! REDIMENSIONANDO.......................");
-            int nh = (int) ( _bitmap.getHeight() * ( 850.0 / _bitmap.getWidth()) );
-            _bitmap = Bitmap.createScaledBitmap(_bitmap, 850, nh, true);
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            _bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            byte[] imageInByte = out.toByteArray();
-            _bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(imageInByte));
-
-            Log.d("BUHOO", "PESO::::: "+imageInByte.length);
-        } else if(_bitmap.getWidth() <= 850 || _bitmap.getHeight() <= 850) {
-            Log.d("BUHOO", " NO SE REDIMENSIONO ");
-        }
-        return _bitmap;
-    }
-
     protected void displayPicture(Intent data) {
-        Bitmap bitmap = __getBitmap(fileUri.getPath());
+        Bitmap bitmap = Utiles.__getBitmap(fileUri.getPath());
         ExifInterface ei = null;
         try {
             ei = new ExifInterface(fileUri.getPath());
@@ -381,7 +359,7 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
         String filePath = cursor.getString(columnIndex);
         cursor.close();
 
-        Bitmap bitmap = __getBitmap(filePath);
+        Bitmap bitmap = Utiles.__getBitmap(filePath);
 
         if(bitmap != null) {
             ImagenBean imagenBean = new ImagenBean();

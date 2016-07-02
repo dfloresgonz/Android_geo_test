@@ -1,25 +1,32 @@
 package facilito.codigo.app.dflores.com.myapplicationcf;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import Beans.DBController;
 import Beans.IncidenciaBean;
 import Beans.IncidenciaImagenBean;
+import Beans.Utiles;
 
 /**
  * Created by diego on 1/07/2016.
@@ -28,6 +35,8 @@ public class Detalle_Incidencia extends AppCompatActivity {
 
     DBController controller = new DBController(this);
     int _idIncidenciaLocal;
+
+    Context ctx;
 
     private int IMAGEN_THUMBNAIL_SIZE_DP    = 0;
     private int IMAGEN_THUMBNAIL_SIZE_PIXEL = 0;
@@ -39,6 +48,8 @@ public class Detalle_Incidencia extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detalle_incidencia);
+
+        ctx = this;
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarDetaInc);
         setSupportActionBar(toolbar);
@@ -57,7 +68,7 @@ public class Detalle_Incidencia extends AppCompatActivity {
             Bundle b = getIntent().getExtras();
             int idIncidenciaLocal = b.getInt("ID_INCI_LOCAL");
             _idIncidenciaLocal = idIncidenciaLocal;
-            Log.d("BUHOO", ":::::idIncidenciaLocal: "+idIncidenciaLocal);
+            Log.d("BUHOO", "________idIncidenciaLocal: "+idIncidenciaLocal);
         }
         IncidenciaBean incidencia = controller.getIncidenciaById(_idIncidenciaLocal);
 
@@ -67,37 +78,21 @@ public class Detalle_Incidencia extends AppCompatActivity {
         TextView descripcion = (TextView) findViewById(R.id.deta_descripcion);
         descripcion.setText(incidencia.getDescripcion());
 
+        Log.d("BUHOO", "::::incidencia:::: "+incidencia.toString());
+
         if(incidencia.getLstImagenes() != null) {
+            ArrayList<String> imgs = new ArrayList<String>();//incidencia.getLstImagenes()
             for (IncidenciaImagenBean imgB : incidencia.getLstImagenes()) {
-                agregarFotoUI(imgB.getCorrelativo(), __getBitmap(imgB.getRutaImagen()), imgB.getIdImagen());
+                imgs.add(imgB.getRutaImagen());
+            }
+            for (IncidenciaImagenBean imgB : incidencia.getLstImagenes()) {
+                agregarFotoUI(imgB.getCorrelativo(), Utiles.__getBitmap(imgB.getRutaImagen()), imgB.getIdImagen(), imgs);
             }
         }
     }
 
-    private Bitmap __getBitmap(String filePath) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 8;
-        Bitmap _bitmap = BitmapFactory.decodeFile(filePath, options);
-        Log.d("BUHOO", "ANCHO: "+_bitmap.getWidth()+"  ALTO: "+_bitmap.getHeight());
-        if(_bitmap.getWidth() > 1100 || _bitmap.getHeight() > 1100) {
-            Log.d("BUHOO", "IMAGEN SUPERA LAS DIMENSIONES! REDIMENSIONANDO.......................");
-            int nh = (int) ( _bitmap.getHeight() * ( 850.0 / _bitmap.getWidth()) );
-            _bitmap = Bitmap.createScaledBitmap(_bitmap, 850, nh, true);
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            _bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            byte[] imageInByte = out.toByteArray();
-            _bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(imageInByte));
-
-            Log.d("BUHOO", "PESO::::: "+imageInByte.length);
-        } else if(_bitmap.getWidth() <= 850 || _bitmap.getHeight() <= 850) {
-            Log.d("BUHOO", " NO SE REDIMENSIONO ");
-        }
-        return _bitmap;
-    }
-
-    private void agregarFotoUI(int indexFoto, Bitmap bitmap, int idImagen) {
-        ImageView img = new ImageView(this);
+    private void agregarFotoUI(int indexFoto, Bitmap bitmap, int idImagen, ArrayList<String> imgs) {
+        ImageButton img = new ImageButton(Detalle_Incidencia.this);
         RelativeLayout rl = (RelativeLayout) findViewById(R.id.relLayoutDetalle);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -131,8 +126,53 @@ public class Detalle_Incidencia extends AppCompatActivity {
         img.setScaleType(ImageView.ScaleType.CENTER_CROP);
         img.setLayoutParams(params);
         img.setImageBitmap(bitmap);
+
         rl.addView(img);
+        img.setOnClickListener(new OnImageClickListener(indexFoto, imgs));
+        //img.setOnClickListener(viewOnClickListener);
+        /*img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("BUHOO", "__1__click imagen: "+Build.VERSION.SDK_INT);
+                ImageButton imagen = (ImageButton) findViewById(v.getId());
+                Intent i = new Intent(ctx, FullScreenViewActivity.class);
+                i.putExtra("position", 0);
+                startActivity(i);
+            }
+        });*/
     }
+
+    class OnImageClickListener implements View.OnClickListener {
+
+        ArrayList<String> _imagenes;
+        int _postion;
+
+        // constructor
+        public OnImageClickListener(int position, ArrayList<String> imagenes) {
+            this._postion = position;
+            this._imagenes = imagenes;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent i = new Intent(ctx, FullScreenViewActivity.class);
+            i.putExtra("position", _postion);
+            i.putStringArrayListExtra("LIST_IMAGENES", _imagenes);
+            startActivity(i);
+        }
+
+    }
+
+    /*View.OnClickListener viewOnClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            Log.d("BUHOO", "click imagen: "+Build.VERSION.SDK_INT);
+            int myId = v.getId();
+
+            Toast.makeText(Detalle_Incidencia.this,
+                    "ID: " + String.valueOf(myId) + " clicked",
+                    Toast.LENGTH_LONG).show();
+        }};*/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

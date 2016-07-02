@@ -67,7 +67,9 @@ public class IncidenciaBean {
                "ID remoto: "+getIdIncidenciaRemota()+"\n"+
                 "Titulo: "+getTitulo()+"\n"+
                 "Desc: "+getDescripcion()+"\n"+
-                "Estado: "+getEstadoSync();
+                "Estado: "+getEstadoSync()+"\n"+
+                "lstImagenes: "+( getLstImagenes() != null ? getLstImagenes().size() : "0 imagenes" )
+                ;
     }
 
     public List<IncidenciaImagenBean> getLstImagenes() {

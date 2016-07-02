@@ -97,6 +97,10 @@
             android:name=".Detalle_Incidencia"
             android:label="@string/title_activity_detalle_incidencia"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".FullScreenViewActivity"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+        </activity>
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
