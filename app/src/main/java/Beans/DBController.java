@@ -128,11 +128,14 @@ public class DBController extends SQLiteOpenHelper {
         Cursor cursor = database.rawQuery(sql, null);
         if (cursor.moveToFirst()) {
             do {
-                lstIncidencias.add(new IncidenciaBean(cursor.getInt(0),
-                                                      cursor.getInt(1),
-                                                      cursor.getString(2),
-                                                      cursor.getString(3),
-                                                      cursor.getInt(4)));
+                IncidenciaBean inciBean = new IncidenciaBean(cursor.getInt(0),
+                                                             cursor.getInt(1),
+                                                             cursor.getString(2),
+                                                             cursor.getString(3),
+                                                             cursor.getInt(4));
+                List<IncidenciaImagenBean> lstImagenes = getImagenesByIncidencia(cursor.getInt(0));
+                inciBean.setLstImagenes(lstImagenes);
+                lstIncidencias.add(inciBean);
             } while (cursor.moveToNext());
         }
         database.close();

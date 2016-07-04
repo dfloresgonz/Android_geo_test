@@ -103,9 +103,6 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
         final float scale = getResources().getDisplayMetrics().density;
         IMAGEN_THUMBNAIL_SIZE_PIXEL = (int) (IMAGEN_THUMBNAIL_SIZE_DP * scale + 0.5f);
 
-        //Log.d("BUHOO", "IMAGEN_THUMBNAIL_SIZE_PIXEL: "+IMAGEN_THUMBNAIL_SIZE_PIXEL+"    IMAGEN_THUMBNAIL_SIZE_DP: "+IMAGEN_THUMBNAIL_SIZE_DP);
-        //Log.d("BUHOO", "dpWidth: "+DP_WIDTH+" dpHeight: "+DP_WIDTH);
-
         if(savedInstanceState != null) {
             fileUri    = savedInstanceState.getParcelable("FILE_URI");
             lastId     = savedInstanceState.getInt("LAST_ID");
@@ -338,8 +335,6 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
             imagenBean.rutaLocalImagen = fileUri.getPath();
             lstImagenes.add(imagenBean);
 
-            //lstIds[indexFoto] = currentId;
-            //lstBitmaps.add(bitmap);
             agregarFotoUI(indexFoto, bitmap, currentId);
             Toast.makeText(ctx, "Se agregó la imagen", Toast.LENGTH_LONG).show();
         }
@@ -373,8 +368,6 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
             imagenBean.rutaLocalImagen = filePath;
             lstImagenes.add(imagenBean);
 
-            //lstIds[indexFoto] = currentId;
-            //lstBitmaps.add(bitmap);
             agregarFotoUI(indexFoto, bitmap, currentId);
             Toast.makeText(ctx, "Se agregó la imagen", Toast.LENGTH_LONG).show();
         }
