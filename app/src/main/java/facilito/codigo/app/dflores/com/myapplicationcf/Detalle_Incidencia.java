@@ -42,7 +42,6 @@ public class Detalle_Incidencia extends AppCompatActivity {
     private int IMAGEN_THUMBNAIL_SIZE_PIXEL = 0;
     private float DP_WIDTH = 0;
     private static final int CANT_IMAGENES_HORIZONTAL = 4;
-    private static final int CANT_IMAGENES_TOTAL      = (CANT_IMAGENES_HORIZONTAL * 2);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +84,7 @@ public class Detalle_Incidencia extends AppCompatActivity {
             for (IncidenciaImagenBean imgB : incidencia.getLstImagenes()) {
                 imgs.add(imgB.getRutaImagen());
             }
-            for (IncidenciaImagenBean imgB : incidencia.getLstImagenes()) {
+            for (IncidenciaImagenBean imgB : incidencia.getLstImagenes()) { Utiles.log("imgB.getRutaImagen():::::::: "+imgB.getRutaImagen());
                 agregarFotoUI(imgB.getCorrelativo(), Utiles.__getBitmap(imgB.getRutaImagen()), imgB.getIdImagen(), imgs);
             }
         }

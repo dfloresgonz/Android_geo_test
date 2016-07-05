@@ -333,6 +333,7 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
             imagenBean.idImagen        = currentId;
             imagenBean.indexImagen     = indexFoto;
             imagenBean.rutaLocalImagen = fileUri.getPath();
+            imagenBean.keyName         = "img_"+indexFoto;
             lstImagenes.add(imagenBean);
 
             agregarFotoUI(indexFoto, bitmap, currentId);
@@ -366,6 +367,7 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
             imagenBean.idImagen        = currentId;
             imagenBean.indexImagen     = indexFoto;
             imagenBean.rutaLocalImagen = filePath;
+            imagenBean.keyName         = "img_"+indexFoto;
             lstImagenes.add(imagenBean);
 
             agregarFotoUI(indexFoto, bitmap, currentId);
@@ -441,7 +443,7 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
             }
             incidenciaBean.setLstImagenes(imgListaIns);
         }
-        int newId = controller.insertarIncidencia(incidenciaBean);
+        int newId = controller.insertarIncidencia(incidenciaBean, 0);
         boolean conectado = Utiles.checkInternet(this);
         if (conectado) {
             JSONObject jsonGeneral = new JSONObject();

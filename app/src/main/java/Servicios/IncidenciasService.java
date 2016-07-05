@@ -17,6 +17,7 @@ import java.util.List;
 import Beans.DBController;
 import Beans.GetResponse;
 import Beans.IncidenciaBean;
+import Beans.IncidenciaImagenBean;
 import Beans.Publicidad;
 import Beans.Utiles;
 import Interfaces.IncidenciasInterface;
@@ -44,12 +45,30 @@ public class IncidenciasService extends AsyncTask<String, Void, String> {
                 JSONObject mainResponseObject = new JSONObject(result);
                 JSONArray objArry = mainResponseObject.getJSONArray("incidencias");
                 for (int i = 0; i < objArry.length(); ++i) {
+                    IncidenciaBean incidenciaBean;
                     JSONObject publ = objArry.getJSONObject(i);
                     Log.d("BUHOO", "getJSONObject____: "+objArry.getJSONObject(i));
                     int idIncidenciaRemoto = publ.getInt("id_incidencia");
                     String titulo          = publ.getString("titulo");
                     String descripcion     = publ.getString("descripcion");
-                    arryDraw.add(new IncidenciaBean(0, idIncidenciaRemoto, titulo, descripcion, 1) );
+
+                    incidenciaBean = new IncidenciaBean(0, idIncidenciaRemoto, titulo, descripcion, 1);
+                    //Imagenes
+                    try {
+                        if(publ.getJSONArray("imagenes") != null) {
+                            JSONArray objImgsArry = publ.getJSONArray("imagenes");
+                            List<IncidenciaImagenBean> lstImagenes = new ArrayList<IncidenciaImagenBean>();
+                            for (int j = 0; j < objImgsArry.length(); ++j) {
+                                JSONObject imgObj = objImgsArry.getJSONObject(j);
+                                lstImagenes.add(new IncidenciaImagenBean(0, idIncidenciaRemoto, j, imgObj.getString("imagen_base64"), (j+2)));
+                                Log.d("BUHOO", "Agrego imagen!!!!!! "+j);
+                            }
+                            incidenciaBean.setLstImagenes(lstImagenes);
+                        }
+                    } catch(Exception e) {
+                        Utiles.printearErrores(e, "Error al traer imagenes JSON");
+                    }
+                    arryDraw.add(incidenciaBean);
                 }
             }
         } catch(Exception e) {

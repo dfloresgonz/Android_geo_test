@@ -253,9 +253,13 @@ public class Utiles {
         Log.d("BUHOO", "ERROR "+ detalle + errors.toString());
     }
 
+    public static void log(String detalle) {
+        Log.d("BUHOO", detalle);
+    }
+
     public static Bitmap __getBitmap(String filePath) {
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 8;
+        //options.inSampleSize = 8;
         Bitmap _bitmap = BitmapFactory.decodeFile(filePath, options);
         Log.d("BUHOO", "ANCHO: "+_bitmap.getWidth()+"  ALTO: "+_bitmap.getHeight());
         return __compressBitmap(_bitmap);

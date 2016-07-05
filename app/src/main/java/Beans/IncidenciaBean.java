@@ -22,6 +22,10 @@ public class IncidenciaBean {
         this.setEstadoSync(estadoSync);
     }
 
+    public IncidenciaBean() {
+
+    }
+
     public int getIdIncidenciaLocal() {
         return idIncidenciaLocal;
     }

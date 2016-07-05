@@ -11,12 +11,16 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import Adaptadores.IncidenciasAdapter;
 import Beans.DBController;
+import Beans.ImagenBean;
 import Beans.IncidenciaBean;
+import Beans.IncidenciaImagenBean;
 import Beans.Utiles;
 import Interfaces.IncidenciasInterface;
 
@@ -63,8 +67,17 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                 List<IncidenciaBean> pendientes = controller.getUnsynchedIncidencias();
                 if (pendientes.size() > 0) {
                     JSONObject jsonGeneral = new JSONObject();
+                    List<ImagenBean> lstImgs = new ArrayList<ImagenBean>();
                     for (IncidenciaBean pend : pendientes) {
                         JSONObject jsonObject = new JSONObject();
+                        if(pend.getLstImagenes() != null) {
+                            for (IncidenciaImagenBean img : pend.getLstImagenes()) {
+                                ImagenBean imgBean = new ImagenBean();
+                                imgBean.bitmapImage = Utiles.__getBitmap(img.getRutaImagen());
+                                imgBean.keyName     = "img_"+pend.getIdIncidenciaLocal()+"_"+imgBean.indexImagen;
+                                lstImgs.add(imgBean);
+                            }
+                        }
                         try {
                             jsonObject.accumulate("id_incidencia_local", pend.getIdIncidenciaLocal());
                             jsonObject.accumulate("titulo", pend.getTitulo());
@@ -74,9 +87,12 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                             //...
                         }
                     }
-                    Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this, null);
+                    Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this, lstImgs);
                 }
             } else if (unsynched == 0) {
+                List<IncidenciaBean> newListUI = controller.getAllIncidencias();
+                actualizarUI(newListUI);
+
                 JSONObject jsonIdsLocalesSynched = controller.getIdsRemotosIncidencias();
                 Utiles.verificarIncidenciasNewRemotoServicio(jsonIdsLocalesSynched, controller, this);
             }
@@ -102,7 +118,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
 
     public static void getIncidenciasRemoteAux(List<IncidenciaBean> lstIncidenciasRemote, DBController _controller) {
         for (IncidenciaBean pend : lstIncidenciasRemote) {
-            _controller.insertarIncidencia(pend);
+            _controller.insertarIncidencia(pend, 1);
         }
         lstIncidenciasRemote = _controller.getAllIncidencias();
         actualizarUI(lstIncidenciasRemote);
@@ -153,8 +169,17 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                     List<IncidenciaBean> pendientes = controller.getUnsynchedIncidencias();
                     if (pendientes.size() > 0) {
                         JSONObject jsonGeneral = new JSONObject();
+                        List<ImagenBean> lstImgs = new ArrayList<ImagenBean>();
                         for (IncidenciaBean pend : pendientes) {
                             JSONObject jsonObject = new JSONObject();
+                            if(pend.getLstImagenes() != null) {
+                                for (IncidenciaImagenBean img : pend.getLstImagenes()) {
+                                    ImagenBean imgBean = new ImagenBean();
+                                    imgBean.bitmapImage = Utiles.__getBitmap(img.getRutaImagen());
+                                    imgBean.keyName     = "img_"+pend.getIdIncidenciaLocal()+imgBean.indexImagen;
+                                    lstImgs.add(imgBean);
+                                }
+                            }
                             try {
                                 jsonObject.accumulate("id_incidencia_local", pend.getIdIncidenciaLocal());
                                 jsonObject.accumulate("titulo", pend.getTitulo());
@@ -164,7 +189,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                                 //...
                             }
                         }
-                        Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this, null);
+                        Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this, lstImgs);
                     }
                 } else if (unsynched == 0) {
                     JSONObject jsonIdsLocalesSynched = controller.getIdsRemotosIncidencias();

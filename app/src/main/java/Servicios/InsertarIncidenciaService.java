@@ -41,11 +41,9 @@ public class InsertarIncidenciaService extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... params) {
         HashMap<String, String> postDataParams = new HashMap<>();
         if(lstImages != null) {
-            int key = 0;
             for (ImagenBean img : lstImages) {
                 String uploadImage = Utiles.__getStringImage(img.bitmapImage);
-                postDataParams.put("imagen_"+key, uploadImage);
-                key++;
+                postDataParams.put(img.keyName, uploadImage);
             }
         }
         String result = Utiles.registrarIncidencia(params[0], postDataParams);

@@ -5,13 +5,23 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import facilito.codigo.app.dflores.com.myapplicationcf.R;
 
@@ -54,7 +64,8 @@ public class DBController extends SQLiteOpenHelper {
         onCreate(database);*/
     }
 
-    public int insertarIncidencia(IncidenciaBean incidencia) {
+    public int insertarIncidencia(IncidenciaBean incidencia, int esRemoto) {
+        String IMAGE_DIRECTORY_NAME = ctx.getString(R.string.carpeta_archivos_subida);
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         int newId = this.getNextId();
@@ -71,8 +82,44 @@ public class DBController extends SQLiteOpenHelper {
                 valuesImg.put("id_incidencia_local", newId);
                 valuesImg.put("id_incidencia_remota", incidencia.getIdIncidenciaRemota());
                 valuesImg.put("correlativo", imgBean.getCorrelativo());
-                valuesImg.put("rutaImagen", imgBean.getRutaImagen());
+
                 valuesImg.put("idImagen", imgBean.getIdImagen());
+                //Grabar imagen localmente
+                if(esRemoto == 1) {
+                    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), IMAGE_DIRECTORY_NAME);
+                    // Create the storage directory if it does not exist
+                    if (!mediaStorageDir.exists()) {
+                        if (!mediaStorageDir.mkdirs()) {
+                            Log.d("BUHOO", " insertarIncidenciaOops! Failed create " + IMAGE_DIRECTORY_NAME + " directory");
+                            return 0;
+                        }
+                    }
+                    String timeStamp = new SimpleDateFormat("dd_MM_yyyy_HHmmss", Locale.getDefault()).format(new Date());
+                    File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp+"_"+imgBean.getIdImagen()+"_"+ ".jpg");
+                    String rutaImg = mediaFile.getPath();Log.d("BUHOO", "rutaImg:::: "+rutaImg);
+
+                    byte[] imageAsBytes = Base64.decode(imgBean.getRutaImagen().getBytes(), Base64.DEFAULT);
+                    Bitmap bmp = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                    FileOutputStream out = null;
+                    try {
+                        out = new FileOutputStream(rutaImg);
+                        valuesImg.put("rutaImagen", rutaImg);
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                        // PNG is a lossless format, the compression factor (100) is ignored
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (out != null) {
+                                out.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    valuesImg.put("rutaImagen", imgBean.getRutaImagen());
+                }
                 database.insert("incidencia_images", null, valuesImg);
             }
         }

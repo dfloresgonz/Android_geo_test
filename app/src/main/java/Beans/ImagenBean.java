@@ -13,6 +13,7 @@ public class ImagenBean implements Parcelable {
     public int idImagen;
     public int indexImagen;
     public String rutaLocalImagen;
+    public String keyName;
 
     public ImagenBean() {
 
@@ -23,6 +24,7 @@ public class ImagenBean implements Parcelable {
         this.idImagen = in.readInt();
         this.indexImagen = in.readInt();
         this.rutaLocalImagen = in.readString();
+        this.keyName = in.readString();
     }
 
     public static final Creator<ImagenBean> CREATOR = new Creator<ImagenBean>() {
@@ -48,5 +50,6 @@ public class ImagenBean implements Parcelable {
         dest.writeInt(idImagen);
         dest.writeInt(indexImagen);
         dest.writeString(rutaLocalImagen);
+        dest.writeString(keyName);
     }
 }
