@@ -286,13 +286,13 @@ public class NewIncidencia extends AppCompatActivity{
                 }
                 break;
             }
-            case CAMERA_CAPTURE_IMAGE_REQUEST_CODE : {Log.d("BUHOO", "CAMERA_CAPTURE_IMAGE_REQUEST_CODE:::: "+CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
+            case CAMERA_CAPTURE_IMAGE_REQUEST_CODE : {
                 if (resultCode == Activity.RESULT_OK) {
                     displayPicture(data);
                 }
             }
             case SELECT_PHOTO_REQUEST_CODE: {
-                if(resultCode == RESULT_OK){Log.d("BUHOO", "SELECT_PHOTO_REQUEST_CODE:::: "+SELECT_PHOTO_REQUEST_CODE);
+                if(resultCode == RESULT_OK) {
                     agregarImagenSelectedInGaleria(data);
                 }
             }
@@ -373,8 +373,6 @@ public class NewIncidencia extends AppCompatActivity{
 
     private void agregarFotoUI(int indexFoto, Bitmap bitmap, int idImagen) {
         ImageView img = new ImageView(this);
-        //RelativeLayout rl = (RelativeLayout) findViewById(R.id.subRelativeLayoutNewIncidencia);
-
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 
         params.height = IMAGEN_THUMBNAIL_SIZE_PIXEL;
@@ -412,7 +410,7 @@ public class NewIncidencia extends AppCompatActivity{
         //
         if(indexFoto >= 1) {
             for (ImagenBean imgbean : lstImagenes) {
-                ImageView _img =  (ImageView) findViewById(imgbean.idImagen);Utiles.log("imgbean.idImagen: "+imgbean.idImagen);
+                ImageView _img =  (ImageView) findViewById(imgbean.idImagen);
                 if(_img != null) {
                     _img.setOnClickListener(new OnImageClickListener(imgbean.indexImagen, imgs));
                 }
@@ -573,6 +571,7 @@ public class NewIncidencia extends AppCompatActivity{
         lstImagenes = new ArrayList<ImagenBean>();
         lastId = 1;
         Intent nextPage = new Intent(NewIncidencia.this, Incidencia.class);
+        nextPage.putExtra("FROM_NEW_INCIDENCIA", "OK");
         startActivity(nextPage);
     }
 

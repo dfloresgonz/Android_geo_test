@@ -13,8 +13,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
 import Adaptadores.IncidenciasAdapter;
 import Beans.DBController;
 import Beans.ImagenBean;
@@ -72,14 +77,15 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                 event = extras.getString("FROM_NEW_INCIDENCIA");
             }
         }
+        List<IncidenciaBean> newListUI = controller.getAllIncidencias();
+        actualizarUI(newListUI);
         if(event != null && "OK".equals(event)) {
-            List<IncidenciaBean> newListUI = controller.getAllIncidencias();
-            actualizarUI(newListUI);
+            //
+        } else {
+            mHandler = new Handler();
+            stopRepeatingTask();
+            startRepeatingTask();
         }
-
-        mHandler = new Handler();
-        startRepeatingTask();
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabInc);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,20 +103,24 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
     }
 
     public static void getIncidenciasRemoteAux(List<IncidenciaBean> lstIncidenciasRemote, DBController _controller) {
-        for (IncidenciaBean pend : lstIncidenciasRemote) {
-            _controller.insertarIncidencia(pend, 1);
+        if(lstIncidenciasRemote != null && lstIncidenciasRemote.size() > 0) {
+            for (IncidenciaBean pend : lstIncidenciasRemote) {
+                _controller.insertarIncidencia(pend, 1);
+            }
+            lstIncidenciasRemote = _controller.getAllIncidencias();
+            actualizarUI(lstIncidenciasRemote);
         }
-        lstIncidenciasRemote = _controller.getAllIncidencias();
-        actualizarUI(lstIncidenciasRemote);
         return;
     }
 
     public static void getIncidenciasInsertadasAux(List<IncidenciaBean> lstIncidenciasRemote, DBController _controller) {
-        for (IncidenciaBean pend : lstIncidenciasRemote) {
-            _controller.updateSyncStatus(pend.getIdIncidenciaLocal(), pend.getIdIncidenciaRemota());
+        if(lstIncidenciasRemote != null && lstIncidenciasRemote.size() > 0) {
+            for (IncidenciaBean pend : lstIncidenciasRemote) {
+                _controller.updateSyncStatus(pend.getIdIncidenciaLocal(), pend.getIdIncidenciaRemota());
+            }
+            List<IncidenciaBean> newListUI = _controller.getAllIncidencias();
+            actualizarUI(newListUI);
         }
-        List<IncidenciaBean> newListUI = _controller.getAllIncidencias();
-        actualizarUI(newListUI);
         return;
     }
 
@@ -156,7 +166,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                                 for (IncidenciaImagenBean img : pend.getLstImagenes()) {
                                     ImagenBean imgBean = new ImagenBean();
                                     imgBean.bitmapImage = Utiles.__getBitmap(img.getRutaImagen());
-                                    imgBean.keyName     = "img_"+pend.getIdIncidenciaLocal()+imgBean.indexImagen;
+                                    imgBean.keyName     = "img_"+pend.getIdIncidenciaLocal()+"_"+imgBean.indexImagen;
                                     lstImgs.add(imgBean);
                                 }
                             }
@@ -219,7 +229,9 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         mHandler.removeCallbacks(mStatusChecker);
     }
 
-    public void sincronizar(DBController __controller) {Utiles.log("...SINCRONIZANDO...");
+    public void sincronizar(DBController __controller) {
+        String timeStamp = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss", Locale.getDefault()).format(new Date());
+        Utiles.log("...SINCRONIZANDO... : "+timeStamp);
         boolean conectado = Utiles.checkInternet(ctx);
         if (conectado) {
             int unsynched = __controller.dbSyncCount();Utiles.log("unsynched: "+unsynched);
@@ -250,8 +262,8 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                     Utiles.insertarIncidenciasServicio(jsonGeneral, __controller, this, lstImgs);
                 }
             } else if (unsynched == 0) {
-                List<IncidenciaBean> newListUI = controller.getAllIncidencias();
-                actualizarUI(newListUI);
+                /*List<IncidenciaBean> newListUI = controller.getAllIncidencias();
+                actualizarUI(newListUI);*/
 
                 JSONObject jsonIdsLocalesSynched = controller.getIdsRemotosIncidencias();
                 Utiles.verificarIncidenciasNewRemotoServicio(jsonIdsLocalesSynched, controller, this);
