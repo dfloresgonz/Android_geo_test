@@ -55,7 +55,7 @@ public class IncidenciasService extends AsyncTask<String, Void, String> {
                     incidenciaBean = new IncidenciaBean(0, idIncidenciaRemoto, titulo, descripcion, 1);
                     //Imagenes
                     try {
-                        if(publ.getJSONArray("imagenes") != null) {
+                        if(publ.has("imagenes")) {
                             JSONArray objImgsArry = publ.getJSONArray("imagenes");
                             List<IncidenciaImagenBean> lstImagenes = new ArrayList<IncidenciaImagenBean>();
                             for (int j = 0; j < objImgsArry.length(); ++j) {

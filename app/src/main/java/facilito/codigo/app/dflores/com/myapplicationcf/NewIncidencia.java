@@ -536,8 +536,8 @@ public class NewIncidencia extends AppCompatActivity{
     }
 
     private void registrarIncidencia() {
-        String titulo_incidencia = txtTitulo.getText().toString().trim().replaceAll("<x>", "").replaceAll(" ", "<x>");
-        String descripcion_incidencia = txtDescri.getText().toString().trim().replaceAll("<x>", "").replaceAll(" ", "<x>");
+        String titulo_incidencia = txtTitulo.getText().toString().trim().replaceAll("<x>", "");
+        String descripcion_incidencia = txtDescri.getText().toString().trim().replaceAll("<x>", "");
 
         if (titulo_incidencia.trim().length() == 0 || descripcion_incidencia.trim().length() == 0) {
             Toast.makeText(this, "Escriba el título y/o la descripción", Toast.LENGTH_LONG).show();
