@@ -52,6 +52,11 @@
                 <action android:name="com.buhooapp.RUTA_RETRIEVED" />
             </intent-filter>
         </receiver>
+        <receiver android:name="facilito.codigo.app.dflores.com.myapplicationcf.NewIncidencia$ReceiverBorrarImagen">
+            <intent-filter>
+                <action android:name="com.buhooapp.BORRAR_IMAGEN_RECEIVER" />
+            </intent-filter>
+        </receiver>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

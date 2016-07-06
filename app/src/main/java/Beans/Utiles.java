@@ -8,6 +8,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -281,5 +283,9 @@ public class Utiles {
             Log.d("BUHOO", " NO SE REDIMENSIONO ");
         }
         return _bitmap;
+    }
+
+    public static void toast(String msj, Context ctx) {
+        Toast.makeText(ctx, msj, Toast.LENGTH_LONG).show();
     }
 }

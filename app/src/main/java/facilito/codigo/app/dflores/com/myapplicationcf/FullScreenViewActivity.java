@@ -6,13 +6,13 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import java.util.ArrayList;
 import Adaptadores.FullScreenImageAdapter;
+import Beans.Utiles;
 
 /**
  * Created by diego on 2/07/2016.
  */
 public class FullScreenViewActivity extends Activity {
 
-    //private Utils utils;
     private FullScreenImageAdapter adapter;
     private ViewPager viewPager;
 
@@ -23,13 +23,13 @@ public class FullScreenViewActivity extends Activity {
 
         viewPager = (ViewPager) findViewById(R.id.pager);
 
-        //utils = new Utils(getApplicationContext());
-
         Intent i = getIntent();
         int position = i.getIntExtra("position", 0);
+        int es_detalle = i.getIntExtra("es_detalle", 0);
+
         ArrayList<String> _imgs = i.getStringArrayListExtra("LIST_IMAGENES");
 
-        adapter = new FullScreenImageAdapter(FullScreenViewActivity.this, _imgs/*utils.getFilePaths()*/);
+        adapter = new FullScreenImageAdapter(FullScreenViewActivity.this, _imgs, es_detalle);
 
         viewPager.setAdapter(adapter);
 

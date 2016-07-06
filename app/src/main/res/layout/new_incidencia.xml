@@ -72,6 +72,9 @@
                 android:layout_alignTop="@+id/btnSpeak"
                 android:layout_toRightOf="@+id/btnSpeak"
                 android:layout_toEndOf="@+id/btnSpeak" />
+            <Button android:id="@+id/but2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
     </RelativeLayout>
 
 </ScrollView>

@@ -11,8 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +59,24 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         adapter = new IncidenciasAdapter(lstIncidenciasRemote, ctx);
         recycler.setAdapter(adapter);
         boolean conectado = Utiles.checkInternet(this);
+
+        String event = null;
+        if(savedInstanceState != null) {
+            event = savedInstanceState.getString("FROM_NEW_INCIDENCIA");
+        } else {
+            Bundle extras = getIntent().getExtras();
+            if(extras != null) {
+                event = extras.getString("FROM_NEW_INCIDENCIA");
+            }
+        }
+        if(event != null && "OK".equals(event)) {
+            List<IncidenciaBean> newListUI = controller.getAllIncidencias();
+            actualizarUI(newListUI);
+        }
+
+
         if (conectado) {
-            int unsynched = controller.dbSyncCount();Log.d("BUHOO", "unsynched: "+unsynched);
+            int unsynched = controller.dbSyncCount();Utiles.log("unsynched: "+unsynched);
             if (unsynched > 0) {
                 List<IncidenciaBean> pendientes = controller.getUnsynchedIncidencias();
                 if (pendientes.size() > 0) {
@@ -100,11 +114,12 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
             List<IncidenciaBean> newListUI = controller.getAllIncidencias();
             actualizarUI(newListUI);
         }
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabInc);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToPnatallaRegistro();
+                goToPantallaRegistro();
             }
         });
     }
@@ -213,8 +228,14 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         }
     }
 
-    private void goToPnatallaRegistro() {
+    private void goToPantallaRegistro() {
         Intent nextPage = new Intent(Incidencia.this, NewIncidencia.class);
         startActivity(nextPage);
+    }
+
+    @Override
+    public void onBackPressed() {
+        //Include the code here
+        return;
     }
 }

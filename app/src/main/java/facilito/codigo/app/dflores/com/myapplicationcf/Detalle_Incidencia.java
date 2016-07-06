@@ -3,26 +3,16 @@ package facilito.codigo.app.dflores.com.myapplicationcf;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.List;
-
 import Beans.DBController;
 import Beans.IncidenciaBean;
 import Beans.IncidenciaImagenBean;
@@ -67,7 +57,6 @@ public class Detalle_Incidencia extends AppCompatActivity {
             Bundle b = getIntent().getExtras();
             int idIncidenciaLocal = b.getInt("ID_INCI_LOCAL");
             _idIncidenciaLocal = idIncidenciaLocal;
-            Log.d("BUHOO", "________idIncidenciaLocal: "+idIncidenciaLocal);
         }
         IncidenciaBean incidencia = controller.getIncidenciaById(_idIncidenciaLocal);
 
@@ -77,14 +66,13 @@ public class Detalle_Incidencia extends AppCompatActivity {
         TextView descripcion = (TextView) findViewById(R.id.deta_descripcion);
         descripcion.setText(incidencia.getDescripcion());
 
-        Log.d("BUHOO", "::::incidencia:::: "+incidencia.toString());
 
         if(incidencia.getLstImagenes() != null) {
             ArrayList<String> imgs = new ArrayList<String>();//incidencia.getLstImagenes()
             for (IncidenciaImagenBean imgB : incidencia.getLstImagenes()) {
                 imgs.add(imgB.getRutaImagen());
             }
-            for (IncidenciaImagenBean imgB : incidencia.getLstImagenes()) { Utiles.log("imgB.getRutaImagen():::::::: "+imgB.getRutaImagen());
+            for (IncidenciaImagenBean imgB : incidencia.getLstImagenes()) {
                 agregarFotoUI(imgB.getCorrelativo(), Utiles.__getBitmap(imgB.getRutaImagen()), imgB.getIdImagen(), imgs);
             }
         }
@@ -128,50 +116,29 @@ public class Detalle_Incidencia extends AppCompatActivity {
 
         rl.addView(img);
         img.setOnClickListener(new OnImageClickListener(indexFoto, imgs));
-        //img.setOnClickListener(viewOnClickListener);
-        /*img.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("BUHOO", "__1__click imagen: "+Build.VERSION.SDK_INT);
-                ImageButton imagen = (ImageButton) findViewById(v.getId());
-                Intent i = new Intent(ctx, FullScreenViewActivity.class);
-                i.putExtra("position", 0);
-                startActivity(i);
-            }
-        });*/
     }
 
     class OnImageClickListener implements View.OnClickListener {
 
         ArrayList<String> _imagenes;
-        int _postion;
+        int _position;
 
         // constructor
         public OnImageClickListener(int position, ArrayList<String> imagenes) {
-            this._postion = position;
+            this._position = position;
             this._imagenes = imagenes;
         }
 
         @Override
         public void onClick(View v) {
             Intent i = new Intent(ctx, FullScreenViewActivity.class);
-            i.putExtra("position", _postion);
+            i.putExtra("position", _position);
+            i.putExtra("es_detalle", 1);
+
             i.putStringArrayListExtra("LIST_IMAGENES", _imagenes);
             startActivity(i);
         }
-
     }
-
-    /*View.OnClickListener viewOnClickListener = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            Log.d("BUHOO", "click imagen: "+Build.VERSION.SDK_INT);
-            int myId = v.getId();
-
-            Toast.makeText(Detalle_Incidencia.this,
-                    "ID: " + String.valueOf(myId) + " clicked",
-                    Toast.LENGTH_LONG).show();
-        }};*/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

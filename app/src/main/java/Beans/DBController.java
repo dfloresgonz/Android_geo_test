@@ -96,7 +96,7 @@ public class DBController extends SQLiteOpenHelper {
                     }
                     String timeStamp = new SimpleDateFormat("dd_MM_yyyy_HHmmss", Locale.getDefault()).format(new Date());
                     File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp+"_"+imgBean.getIdImagen()+"_"+ ".jpg");
-                    String rutaImg = mediaFile.getPath();Log.d("BUHOO", "rutaImg:::: "+rutaImg);
+                    String rutaImg = mediaFile.getPath();
 
                     byte[] imageAsBytes = Base64.decode(imgBean.getRutaImagen().getBytes(), Base64.DEFAULT);
                     Bitmap bmp = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
@@ -104,7 +104,7 @@ public class DBController extends SQLiteOpenHelper {
                     try {
                         out = new FileOutputStream(rutaImg);
                         valuesImg.put("rutaImagen", rutaImg);
-                        bmp.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                        bmp.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
                         // PNG is a lossless format, the compression factor (100) is ignored
                     } catch (Exception e) {
                         e.printStackTrace();

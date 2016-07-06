@@ -2,13 +2,12 @@ package facilito.codigo.app.dflores.com.myapplicationcf;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -34,39 +33,32 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.json.JSONObject;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-
 import Beans.DBController;
 import Beans.ImagenBean;
 import Beans.IncidenciaBean;
 import Beans.IncidenciaImagenBean;
 import Beans.MapaVariables;
 import Beans.Utiles;
-import Interfaces.IncidenciasInterface;
 
 /**
  * Created by diego on 30/06/2016.
  */
-public class NewIncidencia extends AppCompatActivity implements IncidenciasInterface{
+public class NewIncidencia extends AppCompatActivity{
 
     private static final int SPEECH_INPUT_REQUEST_CODE         = 100;
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 200;
     private static final int SELECT_PHOTO_REQUEST_CODE         = 300;
 
     private int IMAGEN_THUMBNAIL_SIZE_DP    = 0;
-    private int IMAGEN_THUMBNAIL_SIZE_PIXEL = 0;
+    private static int IMAGEN_THUMBNAIL_SIZE_PIXEL = 0;
     private float DP_WIDTH = 0;
     private static final int CANT_IMAGENES_HORIZONTAL = 4;
     private static final int CANT_IMAGENES_TOTAL      = (CANT_IMAGENES_HORIZONTAL * 2);
@@ -74,17 +66,19 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
     private String IMAGE_DIRECTORY_NAME = null;
     private Uri fileUri;
 
-    private int lastId = 1;
+    private static int lastId = 1;
 
     EditText txtTitulo;
     EditText txtDescri;
+
+    static RelativeLayout rl;
 
     private RadioGroup radioGroup;
     private int idRadioSeleccionado;
     private RadioButton radioButton;
 
     DBController controller = new DBController(this);
-    List<ImagenBean> lstImagenes = new ArrayList<ImagenBean>();
+    static List<ImagenBean> lstImagenes = new ArrayList<ImagenBean>();
 
     static Context ctx;
 
@@ -94,6 +88,8 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
         setContentView(R.layout.new_incidencia);
 
         ctx = this;
+
+        rl = (RelativeLayout) findViewById(R.id.subRelativeLayoutNewIncidencia);
 
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         DP_WIDTH = displayMetrics.widthPixels / displayMetrics.density;
@@ -377,7 +373,7 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
 
     private void agregarFotoUI(int indexFoto, Bitmap bitmap, int idImagen) {
         ImageView img = new ImageView(this);
-        RelativeLayout rl = (RelativeLayout) findViewById(R.id.subRelativeLayoutNewIncidencia);
+        //RelativeLayout rl = (RelativeLayout) findViewById(R.id.subRelativeLayoutNewIncidencia);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 
@@ -411,6 +407,122 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
         img.setLayoutParams(params);
         img.setImageBitmap(bitmap);
         rl.addView(img);
+
+        ArrayList<String> imgs = getListaImagenes();
+        //
+        if(indexFoto >= 1) {
+            for (ImagenBean imgbean : lstImagenes) {
+                ImageView _img =  (ImageView) findViewById(imgbean.idImagen);Utiles.log("imgbean.idImagen: "+imgbean.idImagen);
+                if(_img != null) {
+                    _img.setOnClickListener(new OnImageClickListener(imgbean.indexImagen, imgs));
+                }
+            }
+        } else if(indexFoto == 0) {
+            img.setOnClickListener(new OnImageClickListener(indexFoto, imgs));
+        }
+    }
+
+    static class OnImageClickListener implements View.OnClickListener {
+
+        ArrayList<String> _imagenes;
+        int _postion;
+
+        // constructor
+        public OnImageClickListener(int position, ArrayList<String> imagenes) {
+            this._postion = position;
+            this._imagenes = imagenes;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent i = new Intent(ctx, FullScreenViewActivity.class);
+            i.putExtra("position", _postion);
+            i.putExtra("es_detalle", 0);
+            i.putStringArrayListExtra("LIST_IMAGENES", _imagenes);
+            ctx.startActivity(i);
+        }
+    }
+
+    public static class ReceiverBorrarImagen extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int idx_img_borrar = intent.getIntExtra("img_borrar_idx", 0);//Recibiendo de FullScreenImageAdapter
+
+            ImageView _img = null;
+            for (ImagenBean imgbean : lstImagenes) {
+                if(imgbean.indexImagen == idx_img_borrar ) {
+                    _img =  (ImageView) rl.findViewById(imgbean.idImagen);
+                    break;
+                }
+            }
+            if(_img != null) {
+                rl.removeView(_img);
+                lstImagenes.remove(idx_img_borrar);
+                lastId = lastId - 1;
+                int idxAux = 0;
+                Iterator<ImagenBean> iterator = lstImagenes.iterator();
+                while (iterator.hasNext()) {
+                    ImagenBean imgbean = (ImagenBean) iterator.next();
+                    if(imgbean.indexImagen > idx_img_borrar ) {//Elemento desp del borrado, se resetean sus valores para mantener el orden
+                        ImageView _imgModificar = (ImageView) rl.findViewById(imgbean.idImagen);
+
+                        imgbean.indexImagen = imgbean.indexImagen - 1;
+                        imgbean.idImagen    = imgbean.idImagen    - 1;
+                        imgbean.keyName     = "img_"+idxAux;
+
+                        ////////////////////////////////////////////////////////////////////////////
+                        RelativeLayout.LayoutParams newParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                        newParams.height = IMAGEN_THUMBNAIL_SIZE_PIXEL;
+                        newParams.width  = IMAGEN_THUMBNAIL_SIZE_PIXEL;
+
+                        int idFotoAnterior = imgbean.indexImagen + 1;
+
+                        if(imgbean.indexImagen >= CANT_IMAGENES_HORIZONTAL ) {//Estamos en la 2da fila
+                            newParams.setMargins(15, 0, 0, 0);
+                            newParams.addRule(RelativeLayout.BELOW, (imgbean.indexImagen - 2) );
+                            if(imgbean.indexImagen > CANT_IMAGENES_HORIZONTAL) {//5,6,7
+                                newParams.addRule(RelativeLayout.ALIGN_TOP, idFotoAnterior );
+                                newParams.addRule(RelativeLayout.RIGHT_OF , idFotoAnterior );
+                                newParams.addRule(RelativeLayout.END_OF   , idFotoAnterior );
+                            } else if( imgbean.indexImagen == CANT_IMAGENES_HORIZONTAL ) {
+                                newParams.setMargins(15, 10, 0, 0);
+                            }
+                        } else {//Estamos en la 1era fila
+                            newParams.addRule(RelativeLayout.BELOW, R.id.btnAbrirCamara);
+                            if(imgbean.indexImagen > 0) {
+                                newParams.addRule(RelativeLayout.ALIGN_TOP, idFotoAnterior );
+                                newParams.addRule(RelativeLayout.RIGHT_OF , idFotoAnterior );
+                                newParams.addRule(RelativeLayout.END_OF   , idFotoAnterior );
+                                newParams.setMargins(15, 0, 0, 0);
+                            } else if(imgbean.indexImagen == 0) {
+                                newParams.setMargins(15, 10, 0, 0);
+                            }
+                        }
+                        _imgModificar.setId(imgbean.idImagen);
+                        _imgModificar.setLayoutParams(newParams);
+                        ArrayList<String> imgs = getListaImagenes();
+                        _imgModificar.setOnClickListener(new OnImageClickListener(imgbean.indexImagen, imgs));
+                        ////////////////////////////////////////////////////////////////////////////
+                    }
+                    idxAux++;
+                }
+            } else {
+                //Utiles.log("NO SE PUDO borrar la img con indice: "+idx_img_borrar);
+            }
+            /*
+            for (ImagenBean imgbean : lstImagenes) {
+                Utiles.log("despues de borrar: "+imgbean.keyName+" - "+imgbean.idImagen+" - "+imgbean.indexImagen+" - "+imgbean.rutaLocalImagen);
+            }*/
+        }
+    }
+
+    public static ArrayList<String> getListaImagenes() {
+        ArrayList<String> imgs = new ArrayList<String>();
+        //
+        for (ImagenBean imgbean : lstImagenes) {
+            imgs.add(imgbean.rutaLocalImagen);
+        }
+        return imgs;
     }
 
     public static Bitmap rotateImage(Bitmap source, float angle) {
@@ -444,41 +556,22 @@ public class NewIncidencia extends AppCompatActivity implements IncidenciasInter
             incidenciaBean.setLstImagenes(imgListaIns);
         }
         int newId = controller.insertarIncidencia(incidenciaBean, 0);
-        boolean conectado = Utiles.checkInternet(this);
-        if (conectado) {
-            JSONObject jsonGeneral = new JSONObject();
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.accumulate("id_incidencia_local", newId);
-                jsonObject.accumulate("titulo", titulo_incidencia);
-                jsonObject.accumulate("descripcion", descripcion_incidencia);
-                jsonGeneral.accumulate("objInsert", jsonObject);
-            } catch (Exception e) {
-                //...
-            }
-            Utiles.insertarIncidenciasServicio(jsonGeneral, controller, (IncidenciasInterface) this, lstImagenes);
-        } else {
-            //List<IncidenciaBean> newListUI = controller.getAllIncidencias();
-            //actualizarUI(newListUI);
-        }
-        Toast.makeText(this, "Se registró la incidencia", Toast.LENGTH_LONG).show();
-    }
+        Intent nextPage = new Intent(NewIncidencia.this, Incidencia.class);
+        nextPage.putExtra("FROM_NEW_INCIDENCIA", "OK");
 
-    @Override
-    public Void getIncidenciasRemote(List<IncidenciaBean> lstIncidenciasRemote, DBController controller) {
-        return null;
-    }
+        lstImagenes = new ArrayList<ImagenBean>();
+        lastId = 1;
 
-    @Override
-    public Void getIncidenciasInsertadas(List<IncidenciaBean> lstIncidenciasRemote, DBController controller) {
-        for (IncidenciaBean pend : lstIncidenciasRemote) {
-            controller.updateSyncStatus(pend.getIdIncidenciaLocal(), pend.getIdIncidenciaRemota());
-        }
-        return null;
+        Utiles.toast("Se registró la incidencia", ctx);
+        Utiles.log("Se registró la incidencia.......................................................");
+
+        startActivity(nextPage);
     }
 
     @Override
     public void onBackPressed() {
+        lstImagenes = new ArrayList<ImagenBean>();
+        lastId = 1;
         Intent nextPage = new Intent(NewIncidencia.this, Incidencia.class);
         startActivity(nextPage);
     }
