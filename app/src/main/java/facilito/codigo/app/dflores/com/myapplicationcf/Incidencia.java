@@ -265,11 +265,11 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
             } else if (unsynched == 0) {
                 /*List<IncidenciaBean> newListUI = controller.getAllIncidencias();
                 actualizarUI(newListUI);*/
-                JSONObject jsonIdsLocalesSynched = controller.getIdsRemotosIncidencias();
+                JSONObject jsonIdsLocalesSynched = __controller.getIdsRemotosIncidencias();
                 Utiles.verificarIncidenciasNewRemotoServicio(jsonIdsLocalesSynched, controller, this);
             }
         } else {
-            List<IncidenciaBean> newListUI = controller.getAllIncidencias();
+            List<IncidenciaBean> newListUI = __controller.getAllIncidencias();
             actualizarUI(newListUI);
         }
     }

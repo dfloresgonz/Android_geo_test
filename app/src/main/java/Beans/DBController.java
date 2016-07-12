@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import facilito.codigo.app.dflores.com.myapplicationcf.R;
 
@@ -68,7 +69,10 @@ public class DBController extends SQLiteOpenHelper {
         String IMAGE_DIRECTORY_NAME = ctx.getString(R.string.carpeta_archivos_subida);
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        int newId = this.getNextId();Utiles.log("NEWid::: "+newId);
+        int newId = this.getNextId();
+        String idIncidencia = UUID.randomUUID().toString();
+        Utiles.log("NEWid::: "+newId+"   idIncidencia: "+idIncidencia);
+
         values.put("id_incidencia_local", newId);
         values.put("id_incidencia_remota", incidencia.getIdIncidenciaRemota());
         values.put("titulo", incidencia.getTitulo());
@@ -149,7 +153,6 @@ public class DBController extends SQLiteOpenHelper {
 
     public JSONObject getIdsRemotosIncidencias() {
         JSONObject jsonGeneral = new JSONObject();
-        ArrayList<IncidenciaBean> lstIncidencias = new ArrayList<IncidenciaBean>();
         String sql = "SELECT id_incidencia_remota FROM incidencia WHERE synched = 1";
         SQLiteDatabase database = this.getWritableDatabase();
         Cursor cursor = database.rawQuery(sql, null);
