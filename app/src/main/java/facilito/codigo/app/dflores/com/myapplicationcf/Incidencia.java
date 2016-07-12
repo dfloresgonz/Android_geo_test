@@ -43,7 +43,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
 
     static Context ctx;
 
-    private int mInterval = 5000;
+    private int mInterval = 9000;
     private Handler mHandler;
 
     @Override
@@ -166,7 +166,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                                 for (IncidenciaImagenBean img : pend.getLstImagenes()) {
                                     ImagenBean imgBean = new ImagenBean();
                                     imgBean.bitmapImage = Utiles.__getBitmap(img.getRutaImagen());
-                                    imgBean.keyName     = "img_"+pend.getIdIncidenciaLocal()+"_"+imgBean.indexImagen;
+                                    imgBean.keyName     = "img_"+pend.getIdIncidenciaLocal()+"_"+img.getCorrelativo();
                                     lstImgs.add(imgBean);
                                 }
                             }
@@ -178,6 +178,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                             } catch (Exception e) {
                                 //...
                             }
+                            controller.updateSyncStatus_PendienteSync(pend.getIdIncidenciaLocal());//ESTADO = 2, YA SE ENVIO AL SERVER Y ESTA PENDIENTE DE SINCRONIZAR
                         }
                         Utiles.insertarIncidenciasServicio(jsonGeneral, controller, this, lstImgs);
                     }
@@ -246,7 +247,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
                             for (IncidenciaImagenBean img : pend.getLstImagenes()) {
                                 ImagenBean imgBean = new ImagenBean();
                                 imgBean.bitmapImage = Utiles.__getBitmap(img.getRutaImagen());
-                                imgBean.keyName     = "img_"+pend.getIdIncidenciaLocal()+"_"+imgBean.indexImagen;
+                                imgBean.keyName     = "img_"+pend.getIdIncidenciaLocal()+"_"+img.getCorrelativo();
                                 lstImgs.add(imgBean);
                             }
                         }
@@ -264,7 +265,6 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
             } else if (unsynched == 0) {
                 /*List<IncidenciaBean> newListUI = controller.getAllIncidencias();
                 actualizarUI(newListUI);*/
-
                 JSONObject jsonIdsLocalesSynched = controller.getIdsRemotosIncidencias();
                 Utiles.verificarIncidenciasNewRemotoServicio(jsonIdsLocalesSynched, controller, this);
             }

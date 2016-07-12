@@ -329,7 +329,7 @@ public class NewIncidencia extends AppCompatActivity{
             imagenBean.idImagen        = currentId;
             imagenBean.indexImagen     = indexFoto;
             imagenBean.rutaLocalImagen = fileUri.getPath();
-            imagenBean.keyName         = "img_"+indexFoto;
+            imagenBean.keyName         = "img_"+indexFoto;Utiles.log("camara>>>: "+imagenBean.keyName);
             lstImagenes.add(imagenBean);
 
             agregarFotoUI(indexFoto, bitmap, currentId);
@@ -363,7 +363,7 @@ public class NewIncidencia extends AppCompatActivity{
             imagenBean.idImagen        = currentId;
             imagenBean.indexImagen     = indexFoto;
             imagenBean.rutaLocalImagen = filePath;
-            imagenBean.keyName         = "img_"+indexFoto;
+            imagenBean.keyName         = "img_"+indexFoto;Utiles.log("galeria>>>: "+imagenBean.keyName);
             lstImagenes.add(imagenBean);
 
             agregarFotoUI(indexFoto, bitmap, currentId);
@@ -507,10 +507,6 @@ public class NewIncidencia extends AppCompatActivity{
             } else {
                 //Utiles.log("NO SE PUDO borrar la img con indice: "+idx_img_borrar);
             }
-            /*
-            for (ImagenBean imgbean : lstImagenes) {
-                Utiles.log("despues de borrar: "+imgbean.keyName+" - "+imgbean.idImagen+" - "+imgbean.indexImagen+" - "+imgbean.rutaLocalImagen);
-            }*/
         }
     }
 

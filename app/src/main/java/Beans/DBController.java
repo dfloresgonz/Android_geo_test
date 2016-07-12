@@ -68,7 +68,7 @@ public class DBController extends SQLiteOpenHelper {
         String IMAGE_DIRECTORY_NAME = ctx.getString(R.string.carpeta_archivos_subida);
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        int newId = this.getNextId();
+        int newId = this.getNextId();Utiles.log("NEWid::: "+newId);
         values.put("id_incidencia_local", newId);
         values.put("id_incidencia_remota", incidencia.getIdIncidenciaRemota());
         values.put("titulo", incidencia.getTitulo());
@@ -197,6 +197,7 @@ public class DBController extends SQLiteOpenHelper {
         try {
             if(cursor != null && cursor.moveToFirst()) {
                 id = cursor.getInt(0);
+                id = (id == 0) ? 1 : id;
             }
         } catch(Exception e) {
             Utiles.printearErrores(e, "ERROR getNextId: ");
@@ -230,7 +231,17 @@ public class DBController extends SQLiteOpenHelper {
                              "   SET synched = 1," +
                              "       id_incidencia_remota = " +idIncidenciaRemota+
                              " WHERE id_incidencia_local  = "+idIncidenciaLocal;
-        //Log.d("BUHOO","SQL UPDATE: "+updateQuery);
+        Log.d("BUHOO","SQL UPDATE: "+updateQuery);
+        database.execSQL(updateQuery);
+        database.close();
+    }
+
+    public void updateSyncStatus_PendienteSync(int idIncidenciaLocal){
+        SQLiteDatabase database = this.getWritableDatabase();
+        String updateQuery = "UPDATE incidencia  " +
+                             "   SET synched = 2 "+
+                             " WHERE id_incidencia_local  = "+idIncidenciaLocal;
+        Log.d("BUHOO","SQL UPDATE PEND:: "+updateQuery);
         database.execSQL(updateQuery);
         database.close();
     }

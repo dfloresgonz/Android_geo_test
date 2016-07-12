@@ -126,7 +126,6 @@ public class Utiles {
         if(!first) {//entro al loop se setea un FLAG para validar en el server
             result.append("&has_img="+params.size());
         }
-
         return result.toString();
     }
 
