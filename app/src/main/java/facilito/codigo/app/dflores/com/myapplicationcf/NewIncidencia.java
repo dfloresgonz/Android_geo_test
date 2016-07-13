@@ -329,7 +329,7 @@ public class NewIncidencia extends AppCompatActivity{
             imagenBean.idImagen        = currentId;
             imagenBean.indexImagen     = indexFoto;
             imagenBean.rutaLocalImagen = fileUri.getPath();
-            imagenBean.keyName         = "img_"+indexFoto;Utiles.log("camara>>>: "+imagenBean.keyName);
+            imagenBean.keyName         = "img_"+indexFoto;
             lstImagenes.add(imagenBean);
 
             agregarFotoUI(indexFoto, bitmap, currentId);

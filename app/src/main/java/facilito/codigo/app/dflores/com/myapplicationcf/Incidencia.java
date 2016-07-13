@@ -3,7 +3,10 @@ package facilito.codigo.app.dflores.com.myapplicationcf;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -11,9 +14,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -271,6 +280,71 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
         } else {
             List<IncidenciaBean> newListUI = __controller.getAllIncidencias();
             actualizarUI(newListUI);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings: generarJSON_Muestras(); return true;
+            default: return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void generarJSON_Muestras() {
+        File muestrasFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), getResources().getString(R.string.carpeta_archivo_muestras));
+        if (!muestrasFolder.exists()) {
+            if (!muestrasFolder.mkdirs()) {
+                Log.d("BUHOO", "Hubo un error al crear el folder de muestras");
+                Utiles.toast("Hubo un error al crear el folder de muestras", ctx);
+            }
+        }
+        //
+        String timeStamp = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.getDefault()).format(new Date());
+        File muestrasFileJSON = new File(muestrasFolder.getPath() + File.separator + "Muestras_" + timeStamp + ".json");
+        Uri fileUri = Uri.fromFile(muestrasFileJSON);
+        try {
+            FileWriter fw = new FileWriter(fileUri.getPath(), false);
+            ArrayList<IncidenciaBean> lstIncidencias = controller.getAllIncidencias();
+            int cnt = 0;
+            for (IncidenciaBean inc : lstIncidencias) {
+                cnt++;
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.accumulate("id_incidencia_remoto", inc.getIdIncidenciaRemota());
+                    jsonObject.accumulate("id_incidencia_local", inc.getIdIncidenciaLocal());
+                    jsonObject.accumulate("titulo", inc.getTitulo());
+                    jsonObject.accumulate("descripcion", inc.getDescripcion());
+                    //Imagenes
+                    List<IncidenciaImagenBean> lstImagenes = controller.getImagenesByIncidencia(inc.getIdIncidenciaLocal());
+                    JSONArray arrayimg = new JSONArray();
+                    for (IncidenciaImagenBean img : lstImagenes) {
+                        String uploadImage = Utiles.__getStringImage(Utiles.__getBitmap( img.getRutaImagen() ));
+                        arrayimg.put(uploadImage);
+                    }
+                    jsonObject.accumulate("imagenes", arrayimg);
+                    //
+                    fw.append(jsonObject.toString());
+                    if(cnt < lstIncidencias.size()) {
+                        fw.append(',');
+                    }
+                    fw.append('\n');
+                } catch(Exception e) {
+                    Utiles.printearErrores(e, "error json......-------->: ");
+                }
+            }
+            fw.close();
+            Utiles.toast("Se exportó el archivo de muestras.", ctx);
+            Utiles.log("Se exportó el archivo de muestras. :::::: "+fileUri.getPath());
+        } catch (Exception e) {
+            Utiles.toast("Hubo un error al exportar el archivo de muestras", ctx);
+            Utiles.printearErrores(e," Error al exportar muestras.");
         }
     }
 
