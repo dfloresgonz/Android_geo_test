@@ -36,6 +36,7 @@ public class DBController extends SQLiteOpenHelper {
     public DBController(Context applicationcontext) {
         super(applicationcontext, "androidsqlite.db", null, 1);
         this.ctx = applicationcontext;
+        Utiles.log(" DBController INSTANCIADO.......................................................... ");
     }
 
     @Override
@@ -55,14 +56,18 @@ public class DBController extends SQLiteOpenHelper {
                                                                "idImagen             INTEGER," +
                                                                "PRIMARY KEY ( id_incidencia_local, correlativo) )";
         database.execSQL(query);
+        Utiles.log("============================================= ********    creo tablas!! ");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-        /*String query;
+        Utiles.log("============================================= ********  onUpgrade onUpgrade onUpgrade   ");
+        String query;
         query = "DROP TABLE IF EXISTS incidencia";
         database.execSQL(query);
-        onCreate(database);*/
+        query = "DROP TABLE IF EXISTS incidencia_images";
+        database.execSQL(query);
+        onCreate(database);
     }
 
     public int insertarIncidencia(IncidenciaBean incidencia, int esRemoto) {

@@ -46,6 +46,7 @@ public class Incidencia extends AppCompatActivity implements IncidenciasInterfac
     private static RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager lManager;
     List<IncidenciaBean> lstIncidenciasRemote = new ArrayList<IncidenciaBean>();
+
     DBController controller = new DBController(this);
 
     private String IMAGE_DIRECTORY_NAME = null;
